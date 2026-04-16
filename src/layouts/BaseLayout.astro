@@ -1,0 +1,49 @@
+---
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { connectDB } from '../lib/db';
+import { SiteContent } from '../lib/models/SiteContent';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+await connectDB();
+const content = await SiteContent.findOne({ key: 'homepage' }).lean();
+const artistName = content?.artistName || 'Artist Portfolio';
+const tagline = content?.tagline || '';
+
+const {
+  title = artistName,
+  description = tagline,
+  image,
+} = Astro.props;
+
+const pageTitle = title === artistName ? artistName : `${title} — ${artistName}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{pageTitle}</title>
+    {image && <meta property="og:image" content={image} />}
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body>
+    <Nav artistName={artistName} />
+    <main class="page-content">
+      <slot />
+    </main>
+    <Footer artistName={artistName} />
+  </body>
+</html>

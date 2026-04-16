@@ -1,0 +1,23 @@
+---
+interface Props {
+  artistName: string;
+}
+const { artistName } = Astro.props;
+const pathname = Astro.url.pathname;
+---
+
+<nav class="site-nav">
+  <a href="/" class="site-nav__brand">{artistName}</a>
+  <ul class="site-nav__links">
+    <li>
+      <a href="/gallery" aria-current={pathname.startsWith('/gallery') ? 'page' : undefined}>
+        Gallery
+      </a>
+    </li>
+    <li>
+      <a href="/about" aria-current={pathname === '/about' ? 'page' : undefined}>
+        About
+      </a>
+    </li>
+  </ul>
+</nav>

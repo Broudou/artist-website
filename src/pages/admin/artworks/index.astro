@@ -1,0 +1,80 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { connectDB } from '../../../lib/db';
+import { Artwork } from '../../../lib/models/Artwork';
+
+await connectDB();
+const artworks = await Artwork.find().sort({ createdAt: -1 }).lean();
+---
+
+<AdminLayout title="Artworks">
+  <div class="admin-header">
+    <h1 class="admin-title">Artworks <span style="color:var(--text-muted);font-size:1rem;font-family:var(--font-body);">({artworks.length})</span></h1>
+    <a href="/admin/artworks/new" class="btn btn--primary">+ Add Artwork</a>
+  </div>
+
+  {artworks.length === 0 ? (
+    <div style="text-align:center;padding:4rem;background:#fff;border:1px solid var(--border);border-radius:6px;">
+      <p style="color:var(--text-muted);font-family:var(--font-display);font-size:1.5rem;margin-bottom:1rem;">No artworks yet</p>
+      <a href="/admin/artworks/new" class="btn btn--primary">Add your first artwork</a>
+    </div>
+  ) : (
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Year</th>
+            <th>Price</th>
+            <th>Featured</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {artworks.map((artwork) => (
+            <tr>
+              <td>
+                <img class="admin-thumb" src={artwork.thumbnailUrl} alt={artwork.title} />
+              </td>
+              <td style="font-family:var(--font-display);font-size:1rem;max-width:200px;">
+                {artwork.title}
+              </td>
+              <td>
+                <span class={`badge ${artwork.category === 'drawing' ? 'badge--gold' : 'badge--gray'}`}>
+                  {artwork.category}
+                </span>
+              </td>
+              <td style="color:var(--text-muted);">{artwork.year || '—'}</td>
+              <td>{artwork.price != null ? `€${artwork.price.toLocaleString()}` : '—'}</td>
+              <td>
+                {artwork.featured ? (
+                  <span class="badge badge--gold">Yes</span>
+                ) : (
+                  <span style="color:var(--text-light);font-size:0.875rem;">—</span>
+                )}
+              </td>
+              <td>
+                <span class={`badge ${artwork.available ? 'badge--green' : 'badge--gray'}`}>
+                  {artwork.available ? 'Available' : 'Sold'}
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:0.5rem;">
+                  <a href={`/admin/artworks/${artwork._id}`} class="btn btn--ghost" style="padding:0.3rem 0.75rem;font-size:0.8125rem;">
+                    Edit
+                  </a>
+                  <a href={`/gallery/${artwork.slug}`} target="_blank" class="btn btn--ghost" style="padding:0.3rem 0.75rem;font-size:0.8125rem;" title="View on site">
+                    ↗
+                  </a>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</AdminLayout>

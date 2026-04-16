@@ -1,0 +1,45 @@
+---
+interface Props {
+  artistName: string;
+  tagline: string;
+  heroText: string;
+  featuredImageUrl?: string;
+  featuredImageTitle?: string;
+  featuredSlug?: string;
+}
+
+const {
+  artistName,
+  tagline,
+  heroText,
+  featuredImageUrl,
+  featuredImageTitle,
+  featuredSlug,
+} = Astro.props;
+---
+
+<section class="hero">
+  {featuredImageUrl ? (
+    <div class="hero__image-wrap">
+      <img src={featuredImageUrl} alt={featuredImageTitle || artistName} />
+    </div>
+    <div class="hero__overlay"></div>
+    <div class="hero__content">
+      <p class="hero__tagline">{tagline || 'Original artwork'}</p>
+      <h1 class="hero__title">{artistName}</h1>
+      {heroText && <p style="opacity:0.75;max-width:52ch;margin-bottom:1.5rem;font-size:1rem;">{heroText}</p>}
+      {featuredSlug && (
+        <a href={`/gallery/${featuredSlug}`} class="hero__cta">
+          View work
+        </a>
+      )}
+    </div>
+  ) : (
+    <div style="display:flex;flex-direction:column;justify-content:flex-end;padding:4rem var(--gutter);background:var(--bg-dark);min-height:70vh;">
+      <p class="hero__tagline" style="color:rgba(255,255,255,0.6);">{tagline || 'Original artwork'}</p>
+      <h1 class="hero__title" style="color:#fff;">{artistName}</h1>
+      {heroText && <p style="color:rgba(255,255,255,0.65);max-width:52ch;margin-bottom:1.5rem;">{heroText}</p>}
+      <a href="/gallery" class="hero__cta">Explore gallery</a>
+    </div>
+  )}
+</section>

@@ -1,0 +1,37 @@
+---
+import type { IArtwork } from '../lib/models/Artwork';
+
+interface Props {
+  artwork: IArtwork;
+}
+
+const { artwork } = Astro.props;
+const displayPrice = artwork.price != null
+  ? `€${artwork.price.toLocaleString()}`
+  : artwork.printSizes.length > 0
+    ? `From €${Math.min(...artwork.printSizes.map(p => p.price)).toLocaleString()}`
+    : null;
+---
+
+<a href={`/gallery/${artwork.slug}`} class="artwork-card">
+  <div class="artwork-card__image-wrap">
+    <img
+      src={artwork.thumbnailUrl}
+      alt={artwork.title}
+      loading="lazy"
+      width="600"
+      height="800"
+    />
+  </div>
+  <div class="artwork-card__body">
+    <p class="artwork-card__title">{artwork.title}</p>
+    <p class="artwork-card__meta">
+      {artwork.medium}{artwork.year ? ` · ${artwork.year}` : ''}
+    </p>
+    {artwork.available && displayPrice ? (
+      <p class="artwork-card__price">{displayPrice}</p>
+    ) : !artwork.available ? (
+      <p class="artwork-card__unavailable">Sold</p>
+    ) : null}
+  </div>
+</a>

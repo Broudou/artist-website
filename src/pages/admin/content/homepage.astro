@@ -1,0 +1,70 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { connectDB } from '../../../lib/db';
+import { SiteContent } from '../../../lib/models/SiteContent';
+
+await connectDB();
+const content = await SiteContent.findOne({ key: 'homepage' }).lean();
+const success = Astro.url.searchParams.get('success');
+const error = Astro.url.searchParams.get('error');
+---
+
+<AdminLayout title="Homepage Content">
+  <div class="admin-header">
+    <h1 class="admin-title">Homepage Content</h1>
+  </div>
+
+  {success && <div class="alert alert--success">Saved successfully.</div>}
+  {error && <div class="alert alert--error">Failed to save. Please try again.</div>}
+
+  <form
+    class="admin-form"
+    method="POST"
+    action="/api/content/homepage"
+    enctype="multipart/form-data"
+  >
+    <input type="hidden" name="_method" value="PUT" />
+
+    <div class="form-grid">
+      <div class="form-group form-group--full">
+        <label class="form-label" for="artistName">Artist Name</label>
+        <input
+          class="form-input"
+          type="text"
+          id="artistName"
+          name="artistName"
+          value={content?.artistName || ''}
+          placeholder="e.g. Marie Dupont"
+        />
+        <p class="form-hint">Displayed in the navigation and hero section.</p>
+      </div>
+
+      <div class="form-group form-group--full">
+        <label class="form-label" for="tagline">Tagline</label>
+        <input
+          class="form-input"
+          type="text"
+          id="tagline"
+          name="tagline"
+          value={content?.tagline || ''}
+          placeholder="e.g. Original drawings & fine art photography"
+        />
+      </div>
+
+      <div class="form-group form-group--full">
+        <label class="form-label" for="heroText">Hero Text</label>
+        <textarea
+          class="form-textarea"
+          id="heroText"
+          name="heroText"
+          rows="4"
+          placeholder="A short paragraph shown on the homepage hero."
+        >{content?.heroText || ''}</textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary">Save Changes</button>
+    </div>
+  </form>
+</AdminLayout>

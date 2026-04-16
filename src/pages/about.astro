@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { connectDB } from '../lib/db';
+import { SiteContent } from '../lib/models/SiteContent';
+
+await connectDB();
+const content = await SiteContent.findOne({ key: 'about' }).lean();
+const homepage = await SiteContent.findOne({ key: 'homepage' }).lean();
+
+const artistName = homepage?.artistName || 'The Artist';
+const bio = content?.aboutBio || '';
+const portraitUrl = content?.aboutPortraitUrl || '';
+---
+
+<BaseLayout title="About" description={`About ${artistName}`}>
+  <div class="container">
+    <div class="about-layout">
+      {portraitUrl && (
+        <div class="about-portrait">
+          <img src={portraitUrl} alt={artistName} width="600" height="800" />
+        </div>
+      )}
+
+      <div style={!portraitUrl ? 'grid-column:1/-1;max-width:72ch;' : ''}>
+        <p style="font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;">
+          About
+        </p>
+        <h1 style="font-family:var(--font-display);font-size:clamp(2rem,4vw,3rem);font-weight:300;margin-bottom:2rem;">
+          {artistName}
+        </h1>
+
+        {bio ? (
+          <div class="about-bio">{bio}</div>
+        ) : (
+          <p style="color:var(--text-muted);font-style:italic;">
+            Biography coming soon.
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+</BaseLayout>

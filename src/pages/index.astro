@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ArtworkCard from '../components/ArtworkCard.astro';
+import { connectDB } from '../lib/db';
+import { Artwork } from '../lib/models/Artwork';
+import { SiteContent } from '../lib/models/SiteContent';
+
+await connectDB();
+
+const [content, featured] = await Promise.all([
+  SiteContent.findOne({ key: 'homepage' }).lean(),
+  Artwork.find({ featured: true }).sort({ createdAt: -1 }).limit(6).lean(),
+]);
+
+const artistName = content?.artistName || 'Artist Portfolio';
+const tagline = content?.tagline || '';
+const heroText = content?.heroText || '';
+
+const hero = featured[0];
+---
+
+<BaseLayout title={artistName} description={tagline}>
+  <Hero
+    artistName={artistName}
+    tagline={tagline}
+    heroText={heroText}
+    featuredImageUrl={hero?.imageUrl}
+    featuredImageTitle={hero?.title}
+    featuredSlug={hero?.slug}
+  />
+
+  {featured.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">Featured Works</h2>
+          <a href="/gallery" class="section__link">View all →</a>
+        </div>
+        <div class="gallery-grid">
+          {featured.map((artwork) => (
+            <ArtworkCard artwork={artwork} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {featured.length === 0 && (
+    <section class="section">
+      <div class="container" style="text-align:center;padding-block:5rem;">
+        <p style="color:var(--text-muted);font-family:var(--font-display);font-size:1.5rem;">
+          Gallery coming soon
+        </p>
+      </div>
+    </section>
+  )}
+</BaseLayout>

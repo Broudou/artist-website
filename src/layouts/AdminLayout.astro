@@ -1,0 +1,70 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  activeSection?: string;
+}
+
+const { title = 'Admin', activeSection = '' } = Astro.props;
+const user = Astro.locals.user;
+const pathname = Astro.url.pathname;
+
+function isActive(path: string): string {
+  return pathname.startsWith(path) ? 'active' : '';
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} — Admin</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body>
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <div class="admin-sidebar__brand">
+          Portfolio Admin
+          <span>{user?.email}</span>
+        </div>
+
+        <span class="admin-nav-section">Content</span>
+        <a href="/admin/dashboard" class={`admin-nav-link ${isActive('/admin/dashboard')}`}>
+          Dashboard
+        </a>
+        <a href="/admin/content/homepage" class={`admin-nav-link ${isActive('/admin/content/homepage')}`}>
+          Homepage
+        </a>
+        <a href="/admin/content/about" class={`admin-nav-link ${isActive('/admin/content/about')}`}>
+          About Page
+        </a>
+
+        <span class="admin-nav-section">Artworks</span>
+        <a href="/admin/artworks" class={`admin-nav-link ${pathname === '/admin/artworks' ? 'active' : ''}`}>
+          All Artworks
+        </a>
+        <a href="/admin/artworks/new" class={`admin-nav-link ${isActive('/admin/artworks/new')}`}>
+          + Add Artwork
+        </a>
+
+        <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.08);">
+          <a href="/" class="admin-nav-link" target="_blank">↗ View Site</a>
+          <form method="POST" action="/api/auth/logout" style="margin-top: 0.25rem;">
+            <button type="submit" class="admin-nav-link" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+              Sign out
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <div class="admin-main">
+        <slot />
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,145 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+const currentYear = new Date().getFullYear();
+---
+
+<AdminLayout title="Add Artwork">
+  <div class="admin-header">
+    <h1 class="admin-title">Add Artwork</h1>
+    <a href="/admin/artworks" class="btn btn--ghost">← Back</a>
+  </div>
+
+  <form
+    class="admin-form"
+    method="POST"
+    action="/api/artworks"
+    enctype="multipart/form-data"
+    id="artwork-form"
+  >
+    <div class="form-grid">
+      <div class="form-group form-group--full">
+        <label class="form-label" for="image">Image *</label>
+        <input
+          class="form-input"
+          type="file"
+          id="image"
+          name="image"
+          accept="image/*"
+          required
+        />
+        <p class="form-hint">Automatically resized. Max upload ~50 MB. Supported: JPG, PNG, WEBP.</p>
+      </div>
+
+      <div class="form-group form-group--full">
+        <label class="form-label" for="title">Title *</label>
+        <input class="form-input" type="text" id="title" name="title" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="category">Category *</label>
+        <select class="form-select" id="category" name="category" required>
+          <option value="drawing">Drawing</option>
+          <option value="photo">Photography</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="medium">Medium</label>
+        <input class="form-input" type="text" id="medium" name="medium" placeholder="e.g. Pencil on paper" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="year">Year</label>
+        <input class="form-input" type="number" id="year" name="year" value={currentYear} min="1900" max={currentYear + 1} />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="price">Original Price (€)</label>
+        <input class="form-input" type="number" id="price" name="price" min="0" step="0.01" placeholder="Leave empty if not for sale" />
+      </div>
+
+      <div class="form-group form-group--full">
+        <label class="form-label" for="description">Description</label>
+        <textarea class="form-textarea" id="description" name="description" rows="5"></textarea>
+      </div>
+
+      <div class="form-group form-group--full">
+        <label class="form-label">Print Sizes</label>
+        <div class="print-sizes-editor" id="print-sizes-editor">
+          <!-- dynamically added -->
+        </div>
+        <button type="button" class="btn btn--ghost" style="margin-top:0.5rem;font-size:0.8125rem;" onclick="addPrintSize()">
+          + Add print size
+        </button>
+        <input type="hidden" id="printSizes" name="printSizes" value="[]" />
+      </div>
+
+      <div class="form-group form-group--full">
+        <label class="form-label" for="tags">Tags</label>
+        <input class="form-input" type="text" id="tags" name="tags" placeholder="Comma-separated: portrait, charcoal, abstract" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-check">
+          <input type="checkbox" name="available" checked />
+          Available for sale
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label class="form-check">
+          <input type="checkbox" name="featured" />
+          Featured on homepage
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary">Save Artwork</button>
+      <a href="/admin/artworks" class="btn btn--ghost">Cancel</a>
+    </div>
+  </form>
+</AdminLayout>
+
+<script>
+  let printSizes: { label: string; price: number }[] = [];
+
+  function renderPrintSizes() {
+    const editor = document.getElementById('print-sizes-editor')!;
+    const input = document.getElementById('printSizes') as HTMLInputElement;
+    editor.innerHTML = '';
+    printSizes.forEach((ps, i) => {
+      const row = document.createElement('div');
+      row.className = 'print-size-entry';
+      row.innerHTML = `
+        <input class="form-input" type="text" placeholder="A4 (21×30 cm)" value="${ps.label}"
+          oninput="updatePrintSize(${i}, 'label', this.value)" />
+        <input class="form-input" type="number" placeholder="Price €" value="${ps.price}"
+          oninput="updatePrintSize(${i}, 'price', parseFloat(this.value)||0)" min="0" step="0.01" />
+        <button type="button" class="btn btn--danger" style="padding:0.4rem 0.6rem;" onclick="removePrintSize(${i})">✕</button>
+      `;
+      editor.appendChild(row);
+    });
+    input.value = JSON.stringify(printSizes);
+  }
+
+  (window as any).addPrintSize = function () {
+    printSizes.push({ label: '', price: 0 });
+    renderPrintSizes();
+  };
+
+  (window as any).updatePrintSize = function (i: number, field: string, value: string | number) {
+    (printSizes[i] as any)[field] = value;
+    (document.getElementById('printSizes') as HTMLInputElement).value = JSON.stringify(printSizes);
+  };
+
+  (window as any).removePrintSize = function (i: number) {
+    printSizes.splice(i, 1);
+    renderPrintSizes();
+  };
+
+  // Intercept form submit to re-serialize print sizes
+  document.getElementById('artwork-form')?.addEventListener('submit', () => {
+    (document.getElementById('printSizes') as HTMLInputElement).value = JSON.stringify(printSizes);
+  });
+</script>

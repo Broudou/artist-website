@@ -1,0 +1,93 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { connectDB } from '../../lib/db';
+import { Artwork } from '../../lib/models/Artwork';
+
+await connectDB();
+
+const [total, featured, drawings, photos, available] = await Promise.all([
+  Artwork.countDocuments(),
+  Artwork.countDocuments({ featured: true }),
+  Artwork.countDocuments({ category: 'drawing' }),
+  Artwork.countDocuments({ category: 'photo' }),
+  Artwork.countDocuments({ available: true }),
+]);
+
+const recent = await Artwork.find().sort({ createdAt: -1 }).limit(5).lean();
+---
+
+<AdminLayout title="Dashboard">
+  <div class="admin-header">
+    <h1 class="admin-title">Dashboard</h1>
+    <a href="/admin/artworks/new" class="btn btn--primary">+ Add Artwork</a>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <p class="stat-card__value">{total}</p>
+      <p class="stat-card__label">Total Artworks</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-card__value">{featured}</p>
+      <p class="stat-card__label">Featured</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-card__value">{drawings}</p>
+      <p class="stat-card__label">Drawings</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-card__value">{photos}</p>
+      <p class="stat-card__label">Photos</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-card__value">{available}</p>
+      <p class="stat-card__label">Available</p>
+    </div>
+  </div>
+
+  {recent.length > 0 && (
+    <div>
+      <h2 style="font-family:var(--font-display);font-size:1.25rem;margin-bottom:1rem;">Recent additions</h2>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {recent.map((artwork) => (
+              <tr>
+                <td>
+                  <img class="admin-thumb" src={artwork.thumbnailUrl} alt={artwork.title} />
+                </td>
+                <td style="font-family:var(--font-display);font-size:1rem;">{artwork.title}</td>
+                <td>
+                  <span class={`badge ${artwork.category === 'drawing' ? 'badge--gold' : 'badge--gray'}`}>
+                    {artwork.category}
+                  </span>
+                </td>
+                <td>{artwork.price != null ? `€${artwork.price}` : '—'}</td>
+                <td>
+                  <span class={`badge ${artwork.available ? 'badge--green' : 'badge--gray'}`}>
+                    {artwork.available ? 'Available' : 'Sold'}
+                  </span>
+                </td>
+                <td>
+                  <a href={`/admin/artworks/${artwork._id}`} class="btn btn--ghost" style="padding:0.3rem 0.75rem;font-size:0.8125rem;">
+                    Edit
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )}
+</AdminLayout>

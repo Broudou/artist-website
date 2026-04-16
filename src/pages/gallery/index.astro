@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArtworkCard from '../../components/ArtworkCard.astro';
+import { connectDB } from '../../lib/db';
+import { Artwork } from '../../lib/models/Artwork';
+
+await connectDB();
+
+const category = Astro.url.searchParams.get('category') as 'drawing' | 'photo' | null;
+const query = category ? { category } : {};
+const artworks = await Artwork.find(query).sort({ createdAt: -1 }).lean();
+---
+
+<BaseLayout title="Gallery" description="Browse all artworks">
+  <div class="container section" style="padding-top:calc(64px + 3rem);">
+    <div class="section__header">
+      <h1 class="section__title">Gallery</h1>
+    </div>
+
+    <div class="filter-bar">
+      <a href="/gallery" class={`filter-btn ${!category ? 'active' : ''}`}>All</a>
+      <a href="/gallery?category=drawing" class={`filter-btn ${category === 'drawing' ? 'active' : ''}`}>
+        Drawings
+      </a>
+      <a href="/gallery?category=photo" class={`filter-btn ${category === 'photo' ? 'active' : ''}`}>
+        Photography
+      </a>
+    </div>
+
+    {artworks.length > 0 ? (
+      <div class="gallery-grid">
+        {artworks.map((artwork) => (
+          <ArtworkCard artwork={artwork} />
+        ))}
+      </div>
+    ) : (
+      <div style="text-align:center;padding-block:5rem;">
+        <p style="font-family:var(--font-display);font-size:1.5rem;color:var(--text-muted);">
+          No artworks yet
+        </p>
+      </div>
+    )}
+  </div>
+</BaseLayout>

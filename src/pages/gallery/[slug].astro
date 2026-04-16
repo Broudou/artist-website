@@ -1,0 +1,101 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { connectDB } from '../../lib/db';
+import { Artwork } from '../../lib/models/Artwork';
+
+const { slug } = Astro.params;
+await connectDB();
+const artwork = await Artwork.findOne({ slug }).lean();
+
+if (!artwork) return Astro.redirect('/gallery');
+
+const displayPrice = artwork.price != null
+  ? `€${artwork.price.toLocaleString()}`
+  : null;
+---
+
+<BaseLayout
+  title={artwork.title}
+  description={artwork.description || `${artwork.medium} · ${artwork.year}`}
+  image={artwork.imageUrl}
+>
+  <div class="container">
+    <div class="artwork-detail">
+      <div class="artwork-detail__image">
+        <img
+          src={artwork.imageUrl}
+          alt={artwork.title}
+          width="960"
+          height="1280"
+        />
+      </div>
+
+      <div class="artwork-detail__info">
+        <p class="artwork-detail__category">
+          {artwork.category === 'drawing' ? 'Drawing' : 'Photography'}
+        </p>
+
+        <h1 class="artwork-detail__title">{artwork.title}</h1>
+
+        <p class="artwork-detail__meta">
+          {[artwork.medium, artwork.year?.toString()].filter(Boolean).join(' · ')}
+        </p>
+
+        {artwork.description && (
+          <div class="artwork-detail__description">
+            {artwork.description}
+          </div>
+        )}
+
+        <div class="artwork-detail__pricing">
+          {artwork.available ? (
+            <>
+              {displayPrice && (
+                <div style="margin-bottom:1.5rem;">
+                  <p class="pricing-label">Original</p>
+                  <p class="pricing-original">{displayPrice}</p>
+                </div>
+              )}
+
+              {artwork.printSizes.length > 0 && (
+                <div>
+                  <p class="pricing-label">Prints available</p>
+                  <div class="print-sizes">
+                    {artwork.printSizes.map((ps) => (
+                      <div class="print-size-row">
+                        <span class="print-size-label">{ps.label}</span>
+                        <span class="print-size-price">€{ps.price.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {!displayPrice && artwork.printSizes.length === 0 && (
+                <p style="color:var(--text-muted);font-size:0.9375rem;">
+                  Contact for pricing
+                </p>
+              )}
+            </>
+          ) : (
+            <span class="sold-badge">Sold</span>
+          )}
+        </div>
+
+        {artwork.tags.length > 0 && (
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem;">
+            {artwork.tags.map((tag) => (
+              <span style="padding:0.25rem 0.625rem;border:1px solid var(--border);font-size:0.75rem;color:var(--text-muted);letter-spacing:0.04em;">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <a href="/gallery" style="display:inline-block;margin-top:1rem;font-size:0.8125rem;letter-spacing:0.06em;color:var(--text-muted);text-transform:uppercase;">
+          ← Back to gallery
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
