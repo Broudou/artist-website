@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { connectDB } from '../../../lib/db';
 import { SiteContent } from '../../../lib/models/SiteContent';
-import { processImage } from '../../../lib/imageProcessor';
+import { processImage, deleteImages } from '../../../lib/imageProcessor';
 import { processVideo, deleteVideo } from '../../../lib/videoProcessor';
 
 // Auth is enforced by src/middleware.ts for all /api/content/** routes.
@@ -17,11 +17,13 @@ export const PUT: APIRoute = async ({ request, params }) => {
     const updates: Record<string, string> = {};
 
     for (const [field, value] of formData.entries()) {
-      if (typeof value === 'string' && field !== '_method' && field !== 'removeVideo') {
+      const skip = ['_method', 'removeVideo', 'removeHeroImage'];
+      if (typeof value === 'string' && !skip.includes(field)) {
         updates[field] = value;
       }
     }
 
+    // About portrait
     const portraitFile = formData.get('portrait') as File | null;
     if (portraitFile && portraitFile.size > 0) {
       const buffer = Buffer.from(await portraitFile.arrayBuffer());
@@ -29,14 +31,27 @@ export const PUT: APIRoute = async ({ request, params }) => {
       updates.aboutPortraitUrl = imageUrl;
     }
 
-    // Handle video removal before potential new upload
-    const removeVideo = formData.get('removeVideo');
-    if (removeVideo === '1') {
+    // Hero image (remove then replace)
+    if (formData.get('removeHeroImage') === '1') {
+      const existing = await SiteContent.findOne({ key });
+      if (existing?.heroImageUrl) await deleteImages(existing.heroImageUrl, '');
+      updates.heroImageUrl = '';
+    }
+    const heroImageFile = formData.get('heroImage') as File | null;
+    if (heroImageFile && heroImageFile.size > 0) {
+      const existing = await SiteContent.findOne({ key });
+      if (existing?.heroImageUrl) await deleteImages(existing.heroImageUrl, '');
+      const buffer = Buffer.from(await heroImageFile.arrayBuffer());
+      const { imageUrl } = await processImage(buffer, heroImageFile.type);
+      updates.heroImageUrl = imageUrl;
+    }
+
+    // Hero video (remove then replace)
+    if (formData.get('removeVideo') === '1') {
       const existing = await SiteContent.findOne({ key });
       if (existing?.heroVideoUrl) await deleteVideo(existing.heroVideoUrl);
       updates.heroVideoUrl = '';
     }
-
     const videoFile = formData.get('heroVideo') as File | null;
     if (videoFile && videoFile.size > 0) {
       const existing = await SiteContent.findOne({ key });

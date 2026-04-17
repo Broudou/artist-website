@@ -9,6 +9,7 @@ const success = Astro.url.searchParams.get('success');
 const error = Astro.url.searchParams.get('error');
 
 const videoFilename = content?.heroVideoUrl?.split('/').pop() ?? '';
+const imageFilename = content?.heroImageUrl?.split('/').pop() ?? '';
 ---
 
 <AdminLayout title="Homepage Content">
@@ -24,10 +25,13 @@ const videoFilename = content?.heroVideoUrl?.split('/').pop() ?? '';
     method="POST"
     action="/api/content/homepage"
     enctype="multipart/form-data"
+    style="max-width:860px;"
   >
     <input type="hidden" name="_method" value="PUT" />
 
     <div class="form-grid">
+
+      <!-- Text fields -->
       <div class="form-group form-group--full">
         <label class="form-label" for="artistName">Artist Name</label>
         <input
@@ -64,8 +68,49 @@ const videoFilename = content?.heroVideoUrl?.split('/').pop() ?? '';
         >{content?.heroText || ''}</textarea>
       </div>
 
+      <!-- Hero background divider -->
       <div class="form-group form-group--full">
-        <label class="form-label">Hero Background Video</label>
+        <p class="form-section-title">Hero Background</p>
+        <p class="form-hint">
+          Choose a video <em>or</em> a photo. If both are set, the video takes priority.
+          Leave both empty to use the first featured artwork as background.
+        </p>
+      </div>
+
+      <!-- Hero Photo -->
+      <div class="form-group form-group--full hero-bg-block">
+        <label class="form-label">Background Photo</label>
+
+        {content?.heroImageUrl ? (
+          <div style="margin-bottom:0.75rem;">
+            <img
+              src={content.heroImageUrl}
+              alt="Current hero photo"
+              style="max-width:360px;width:100%;border-radius:4px;border:1px solid var(--border);object-fit:cover;max-height:200px;"
+            />
+            <p class="form-hint" style="margin-top:0.375rem;">{imageFilename}</p>
+          </div>
+          <label class="form-check" style="margin-bottom:0.75rem;">
+            <input type="checkbox" name="removeHeroImage" value="1" />
+            Remove current photo
+          </label>
+        ) : (
+          <p class="form-hint" style="margin-bottom:0.5rem;">No photo set.</p>
+        )}
+
+        <input
+          class="form-input"
+          type="file"
+          name="heroImage"
+          accept="image/jpeg,image/png,image/webp"
+          style="padding:0.375rem 0.5rem;"
+        />
+        <p class="form-hint">JPEG, PNG or WebP</p>
+      </div>
+
+      <!-- Hero Video -->
+      <div class="form-group form-group--full hero-bg-block">
+        <label class="form-label">Background Video <span class="badge badge--gold" style="vertical-align:middle;font-size:0.6rem;">takes priority over photo</span></label>
 
         {content?.heroVideoUrl ? (
           <div style="margin-bottom:0.75rem;">
@@ -82,7 +127,7 @@ const videoFilename = content?.heroVideoUrl?.split('/').pop() ?? '';
             Remove current video
           </label>
         ) : (
-          <p class="form-hint" style="margin-bottom:0.5rem;">No video set — the hero will use the featured artwork image as background.</p>
+          <p class="form-hint" style="margin-bottom:0.5rem;">No video set.</p>
         )}
 
         <input
@@ -96,6 +141,7 @@ const videoFilename = content?.heroVideoUrl?.split('/').pop() ?? '';
           MP4 or WebM &middot; Max 30 MB &middot; 5–15 s recommended &middot; No audio required
         </p>
       </div>
+
     </div>
 
     <div class="form-actions">
@@ -103,3 +149,23 @@ const videoFilename = content?.heroVideoUrl?.split('/').pop() ?? '';
     </div>
   </form>
 </AdminLayout>
+
+<style>
+  .form-section-title {
+    font-size: 0.78125rem;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    color: var(--text);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .hero-bg-block {
+    background: #FAFAF9;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+  }
+</style>

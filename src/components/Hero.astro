@@ -4,6 +4,7 @@ interface Props {
   tagline: string;
   heroText: string;
   heroVideoUrl?: string;
+  heroImageUrl?: string;
   featuredImageUrl?: string;
   featuredImageTitle?: string;
   featuredSlug?: string;
@@ -14,12 +15,16 @@ const {
   tagline,
   heroText,
   heroVideoUrl,
+  heroImageUrl,
   featuredImageUrl,
   featuredImageTitle,
   featuredSlug,
 } = Astro.props;
 
-const hasBackground = heroVideoUrl || featuredImageUrl;
+// Priority: video > custom hero image > first featured artwork
+const bgImage = heroImageUrl || featuredImageUrl;
+const hasBackground = heroVideoUrl || bgImage;
+const bgAlt = heroImageUrl ? artistName : (featuredImageTitle || artistName);
 ---
 
 <section class="hero">
@@ -36,9 +41,9 @@ const hasBackground = heroVideoUrl || featuredImageUrl;
         <source src={heroVideoUrl} type={heroVideoUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} />
       </video>
     </div>
-  ) : featuredImageUrl ? (
+  ) : bgImage ? (
     <div class="hero__image-wrap">
-      <img src={featuredImageUrl} alt={featuredImageTitle || artistName} />
+      <img src={bgImage} alt={bgAlt} />
     </div>
   ) : null}
 
@@ -48,7 +53,7 @@ const hasBackground = heroVideoUrl || featuredImageUrl;
     <p class="hero__tagline">{tagline || 'Original artwork'}</p>
     <h1 class="hero__title">{artistName}</h1>
     {heroText && <p class="hero__text">{heroText}</p>}
-    {hasBackground && featuredSlug ? (
+    {!heroVideoUrl && !heroImageUrl && featuredSlug ? (
       <a href={`/gallery/${featuredSlug}`} class="hero__cta">View work</a>
     ) : (
       <a href="/gallery" class="hero__cta">Explore gallery</a>

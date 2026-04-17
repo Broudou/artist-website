@@ -17,6 +17,7 @@ const artistName = content?.artistName || 'Artist Portfolio';
 const tagline = content?.tagline || '';
 const heroText = content?.heroText || '';
 const heroVideoUrl = content?.heroVideoUrl || '';
+const heroImageUrl = content?.heroImageUrl || '';
 
 const hero = featured[0];
 ---
@@ -27,6 +28,7 @@ const hero = featured[0];
     tagline={tagline}
     heroText={heroText}
     heroVideoUrl={heroVideoUrl}
+    heroImageUrl={heroImageUrl}
     featuredImageUrl={hero?.imageUrl}
     featuredImageTitle={hero?.title}
     featuredSlug={hero?.slug}

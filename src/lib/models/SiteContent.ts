@@ -6,6 +6,7 @@ export interface ISiteContent extends Document {
   tagline: string;
   heroText: string;
   heroVideoUrl: string;
+  heroImageUrl: string;
   aboutBio: string;
   aboutPortraitUrl: string;
 }
@@ -16,6 +17,7 @@ const SiteContentSchema = new mongoose.Schema<ISiteContent>({
   tagline: { type: String, default: '' },
   heroText: { type: String, default: '' },
   heroVideoUrl: { type: String, default: '' },
+  heroImageUrl: { type: String, default: '' },
   aboutBio: { type: String, default: '' },
   aboutPortraitUrl: { type: String, default: '' },
 });
