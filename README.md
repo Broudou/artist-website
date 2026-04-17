@@ -42,7 +42,7 @@ sudo apt install -y nginx
 ### 1. Clone the repository
 
 ```bash
-cd /var/www
+cd ~
 git clone <your-repo-url> artist-website
 cd artist-website
 ```
@@ -56,8 +56,8 @@ npm install
 ### 3. Create the uploads directory
 
 ```bash
-mkdir -p /var/www/artist-website/uploads/processed
-mkdir -p /var/www/artist-website/uploads/thumbs
+mkdir -p ~/artist-website/uploads/processed
+mkdir -p ~/artist-website/uploads/thumbs
 ```
 
 ### 4. Configure environment variables
@@ -72,7 +72,7 @@ Fill in your values:
 ```env
 MONGODB_URI=mongodb://localhost:27017/artist-portfolio
 JWT_SECRET=your_very_long_random_secret_here_minimum_32_chars
-UPLOAD_DIR=/var/www/artist-website/uploads
+UPLOAD_DIR=~/artist-website/uploads
 PORT=4321
 ```
 
@@ -145,23 +145,12 @@ sudo systemctl reload nginx
 
 ---
 
-## SSL with Certbot (recommended)
-
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
-```
-
-Certbot automatically configures Nginx and sets up auto-renewal.
-
----
-
 ## Updating the site
 
 After pulling new changes:
 
 ```bash
-cd /var/www/artist-website
+cd ~/artist-website
 git pull
 npm install
 npm run build
@@ -219,4 +208,21 @@ src/pages/
   api/              REST endpoints (auth, artworks, content)
   admin/            Admin panel pages (SSR, protected)
   gallery/          Public gallery (SSR, reads from MongoDB)
+```
+
+---
+
+## SSL with Certbot
+
+Once the site is running over HTTP, add HTTPS with Certbot:
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+```
+
+Certbot automatically updates the Nginx config and sets up auto-renewal. Verify renewal works with:
+
+```bash
+sudo certbot renew --dry-run
 ```
