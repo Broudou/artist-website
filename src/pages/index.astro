@@ -16,6 +16,7 @@ const [content, featured] = await Promise.all([
 const artistName = content?.artistName || 'Artist Portfolio';
 const tagline = content?.tagline || '';
 const heroText = content?.heroText || '';
+const heroVideoUrl = content?.heroVideoUrl || '';
 
 const hero = featured[0];
 ---
@@ -25,6 +26,7 @@ const hero = featured[0];
     artistName={artistName}
     tagline={tagline}
     heroText={heroText}
+    heroVideoUrl={heroVideoUrl}
     featuredImageUrl={hero?.imageUrl}
     featuredImageTitle={hero?.title}
     featuredSlug={hero?.slug}

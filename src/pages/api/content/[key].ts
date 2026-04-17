@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { connectDB } from '../../../lib/db';
 import { SiteContent } from '../../../lib/models/SiteContent';
 import { processImage } from '../../../lib/imageProcessor';
+import { processVideo, deleteVideo } from '../../../lib/videoProcessor';
 
 // Auth is enforced by src/middleware.ts for all /api/content/** routes.
 
@@ -16,7 +17,7 @@ export const PUT: APIRoute = async ({ request, params }) => {
     const updates: Record<string, string> = {};
 
     for (const [field, value] of formData.entries()) {
-      if (typeof value === 'string' && field !== '_method') {
+      if (typeof value === 'string' && field !== '_method' && field !== 'removeVideo') {
         updates[field] = value;
       }
     }
@@ -26,6 +27,22 @@ export const PUT: APIRoute = async ({ request, params }) => {
       const buffer = Buffer.from(await portraitFile.arrayBuffer());
       const { imageUrl } = await processImage(buffer, portraitFile.type);
       updates.aboutPortraitUrl = imageUrl;
+    }
+
+    // Handle video removal before potential new upload
+    const removeVideo = formData.get('removeVideo');
+    if (removeVideo === '1') {
+      const existing = await SiteContent.findOne({ key });
+      if (existing?.heroVideoUrl) await deleteVideo(existing.heroVideoUrl);
+      updates.heroVideoUrl = '';
+    }
+
+    const videoFile = formData.get('heroVideo') as File | null;
+    if (videoFile && videoFile.size > 0) {
+      const existing = await SiteContent.findOne({ key });
+      if (existing?.heroVideoUrl) await deleteVideo(existing.heroVideoUrl);
+      const buffer = Buffer.from(await videoFile.arrayBuffer());
+      updates.heroVideoUrl = await processVideo(buffer, videoFile.type);
     }
 
     await SiteContent.findOneAndUpdate(

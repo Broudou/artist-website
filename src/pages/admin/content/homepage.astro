@@ -7,6 +7,8 @@ await connectDB();
 const content = await SiteContent.findOne({ key: 'homepage' }).lean();
 const success = Astro.url.searchParams.get('success');
 const error = Astro.url.searchParams.get('error');
+
+const videoFilename = content?.heroVideoUrl?.split('/').pop() ?? '';
 ---
 
 <AdminLayout title="Homepage Content">
@@ -60,6 +62,39 @@ const error = Astro.url.searchParams.get('error');
           rows="4"
           placeholder="A short paragraph shown on the homepage hero."
         >{content?.heroText || ''}</textarea>
+      </div>
+
+      <div class="form-group form-group--full">
+        <label class="form-label">Hero Background Video</label>
+
+        {content?.heroVideoUrl ? (
+          <div style="margin-bottom:0.75rem;">
+            <video
+              src={content.heroVideoUrl}
+              muted
+              controls
+              style="max-width:360px;width:100%;border-radius:4px;border:1px solid var(--border);"
+            />
+            <p class="form-hint" style="margin-top:0.375rem;">{videoFilename}</p>
+          </div>
+          <label class="form-check" style="margin-bottom:0.75rem;">
+            <input type="checkbox" name="removeVideo" value="1" />
+            Remove current video
+          </label>
+        ) : (
+          <p class="form-hint" style="margin-bottom:0.5rem;">No video set — the hero will use the featured artwork image as background.</p>
+        )}
+
+        <input
+          class="form-input"
+          type="file"
+          name="heroVideo"
+          accept="video/mp4,video/webm"
+          style="padding:0.375rem 0.5rem;"
+        />
+        <p class="form-hint">
+          MP4 or WebM &middot; Max 30 MB &middot; 5–15 s recommended &middot; No audio required
+        </p>
       </div>
     </div>
 
