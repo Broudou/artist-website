@@ -2,13 +2,13 @@ import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs/promises';
+import { homedir } from 'os';
 
 function getUploadDir(): string {
-  return (
-    import.meta.env.UPLOAD_DIR ||
-    process.env.UPLOAD_DIR ||
-    path.join(process.cwd(), 'uploads')
-  );
+  // Use process.env only — import.meta.env is resolved at build time and
+  // won't reflect the UPLOAD_DIR set when the server actually starts.
+  const raw = process.env.UPLOAD_DIR ?? path.join(process.cwd(), 'uploads');
+  return raw.startsWith('~/') ? path.join(homedir(), raw.slice(2)) : raw;
 }
 
 export interface ProcessedImage {
@@ -61,7 +61,7 @@ export async function deleteImages(
     path.join(uploadDir, url.replace('/uploads/', ''));
 
   await Promise.allSettled([
-    fs.unlink(toPath(imageUrl)),
-    fs.unlink(toPath(thumbnailUrl)),
+    imageUrl && fs.unlink(toPath(imageUrl)),
+    thumbnailUrl && fs.unlink(toPath(thumbnailUrl)),
   ]);
 }
