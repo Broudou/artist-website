@@ -70,7 +70,7 @@ nano .env
 Fill in your values:
 
 ```env
-MONGODB_URI=mongodb://localhost:27017/artist-portfolio
+MONGODB_URI=mongodb://localhost:27017/artist-website
 JWT_SECRET=your_very_long_random_secret_here_minimum_32_chars
 UPLOAD_DIR=~/artist-website/uploads
 PORT=4321
@@ -98,21 +98,21 @@ npm run build
 ### 7. Start with PM2
 
 ```bash
-pm2 start server.mjs --name artist-portfolio
+pm2 start server.mjs --name artist-website
 pm2 save
 pm2 startup   # follow the printed command to enable auto-start on reboot
 ```
 
 Check logs:
 ```bash
-pm2 logs artist-portfolio
+pm2 logs artist-website
 ```
 
 ---
 
 ## Nginx reverse proxy
 
-Create `/etc/nginx/sites-available/artist-portfolio`:
+Create `/etc/nginx/sites-available/artist-website`:
 
 ```nginx
 server {
@@ -138,7 +138,7 @@ server {
 
 Enable it:
 ```bash
-sudo ln -s /etc/nginx/sites-available/artist-portfolio /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/artist-website /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -154,7 +154,7 @@ cd ~/artist-website
 git pull
 npm install
 npm run build
-pm2 restart artist-portfolio
+pm2 restart artist-website
 ```
 
 ---
@@ -214,14 +214,48 @@ src/pages/
 
 ## SSL with Certbot
 
-Once the site is running over HTTP, add HTTPS with Certbot:
+Once the site is running over HTTP, install Certbot and obtain a certificate:
 
 ```bash
 sudo apt install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 ```
 
-Certbot automatically updates the Nginx config and sets up auto-renewal. Verify renewal works with:
+Certbot will update `/etc/nginx/sites-available/artist-website` automatically. The resulting config looks like this:
+
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name yourdomain.com www.yourdomain.com;
+
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    client_max_body_size 50M;
+
+    location / {
+        proxy_pass http://localhost:4321;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+Verify auto-renewal works:
 
 ```bash
 sudo certbot renew --dry-run

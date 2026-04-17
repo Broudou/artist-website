@@ -29,7 +29,7 @@ if (!email || !password) {
   process.exit(1);
 }
 
-const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/artist-portfolio';
+const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/artist-website';
 
 const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
