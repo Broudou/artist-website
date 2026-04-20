@@ -1,11 +1,19 @@
 ---
 interface Props {
   artistName: string;
+  instagramUrl?: string;
 }
-const { artistName } = Astro.props;
+const { artistName, instagramUrl } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
+  <nav class="footer-links">
+    <a href="/contact">Contact</a>
+    {instagramUrl && (
+      <a href={instagramUrl} target="_blank" rel="noopener noreferrer">Instagram</a>
+    )}
+    <a href="/faq">FAQ</a>
+  </nav>
   <p>© {year} {artistName}. All rights reserved.</p>
 </footer>

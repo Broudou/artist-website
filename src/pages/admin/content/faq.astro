@@ -1,0 +1,91 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { connectDB } from '../../../lib/db';
+import { SiteContent } from '../../../lib/models/SiteContent';
+
+await connectDB();
+const content = await SiteContent.findOne({ key: 'faq' }).lean();
+const success = Astro.url.searchParams.get('success');
+const error = Astro.url.searchParams.get('error');
+
+const faqJson = content?.faqContent || '[]';
+---
+
+<AdminLayout title="FAQ">
+  <div class="admin-header">
+    <h1 class="admin-title">FAQ</h1>
+    <a href="/faq" target="_blank" class="btn btn--ghost">↗ View FAQ</a>
+  </div>
+
+  {success && <div class="alert alert--success">Saved successfully.</div>}
+  {error && <div class="alert alert--error">Failed to save. Please try again.</div>}
+
+  <form class="admin-form" method="POST" action="/api/content/faq" style="max-width:760px;">
+    <input type="hidden" name="_method" value="PUT" />
+    <input type="hidden" id="faqContent" name="faqContent" value={faqJson} />
+
+    <div style="margin-bottom:1rem;">
+      <div id="faq-editor" style="display:flex;flex-direction:column;gap:1rem;"></div>
+      <button type="button" class="btn btn--ghost" style="margin-top:1rem;" onclick="addFaqItem()">
+        + Add question
+      </button>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary">Save FAQ</button>
+    </div>
+  </form>
+</AdminLayout>
+
+<script define:vars={{ initialFaq: faqJson }}>
+  let items = [];
+  try { items = JSON.parse(initialFaq); } catch { items = []; }
+
+  function sync() {
+    document.getElementById('faqContent').value = JSON.stringify(items);
+  }
+
+  function render() {
+    const editor = document.getElementById('faq-editor');
+    editor.innerHTML = '';
+    items.forEach((item, i) => {
+      const block = document.createElement('div');
+      block.style.cssText = 'background:#FAFAF9;border:1px solid var(--border);border-radius:6px;padding:1.25rem;display:flex;flex-direction:column;gap:0.75rem;';
+      block.innerHTML = `
+        <div class="form-group">
+          <label class="form-label">Question</label>
+          <input class="form-input" type="text" value="${item.q.replace(/"/g, '&quot;')}"
+            oninput="updateItem(${i}, 'q', this.value)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Answer</label>
+          <textarea class="form-textarea" rows="4"
+            oninput="updateItem(${i}, 'a', this.value)">${item.a}</textarea>
+        </div>
+        <div>
+          <button type="button" class="btn btn--danger" style="font-size:0.8125rem;padding:0.3rem 0.75rem;"
+            onclick="removeItem(${i})">Remove</button>
+        </div>
+      `;
+      editor.appendChild(block);
+    });
+    sync();
+  }
+
+  window.addFaqItem = function() {
+    items.push({ q: '', a: '' });
+    render();
+  };
+
+  window.updateItem = function(i, field, value) {
+    items[i][field] = value;
+    sync();
+  };
+
+  window.removeItem = function(i) {
+    items.splice(i, 1);
+    render();
+  };
+
+  render();
+</script>

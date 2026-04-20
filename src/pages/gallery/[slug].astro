@@ -12,6 +12,21 @@ if (!artwork) return Astro.redirect('/gallery');
 const displayPrice = artwork.price != null
   ? `€${artwork.price.toLocaleString()}`
   : null;
+
+const cartData = {
+  id: String(artwork._id),
+  slug: artwork.slug,
+  title: artwork.title,
+  thumbnailUrl: artwork.thumbnailUrl,
+  price: artwork.price,
+  priceLabel: displayPrice || (artwork.printSizes[0] ? `€${artwork.printSizes[0].price.toLocaleString()}` : ''),
+};
+
+const printOptions = artwork.printSizes.map(ps => ({
+  label: ps.label,
+  price: ps.price,
+  priceLabel: `€${ps.price.toLocaleString()}`,
+}));
 ---
 
 <BaseLayout
@@ -82,6 +97,28 @@ const displayPrice = artwork.price != null
           )}
         </div>
 
+        {artwork.available && (displayPrice || artwork.printSizes.length > 0) && (
+          <div class="artwork-detail__add-cart">
+            {artwork.printSizes.length > 0 && (
+              <select class="cart-select" id="cart-option">
+                {displayPrice && (
+                  <option value="original" data-price={artwork.price} data-label="">
+                    Original — {displayPrice}
+                  </option>
+                )}
+                {artwork.printSizes.map((ps) => (
+                  <option value={ps.label} data-price={ps.price} data-label={ps.label}>
+                    Print {ps.label} — €{ps.price.toLocaleString()}
+                  </option>
+                ))}
+              </select>
+            )}
+            <button class="btn btn--cart" id="add-to-cart-btn">
+              Add to cart
+            </button>
+          </div>
+        )}
+
         {artwork.tags.length > 0 && (
           <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem;">
             {artwork.tags.map((tag) => (
@@ -99,3 +136,29 @@ const displayPrice = artwork.price != null
     </div>
   </div>
 </BaseLayout>
+
+<script define:vars={{ cartData, printOptions }}>
+  const btn = document.getElementById('add-to-cart-btn');
+  const select = document.getElementById('cart-option');
+
+  if (btn) {
+    btn.addEventListener('click', () => {
+      let item = { ...cartData };
+
+      if (select) {
+        const opt = select.options[select.selectedIndex];
+        const optLabel = opt.dataset.label;
+        const optPrice = opt.dataset.price ? Number(opt.dataset.price) : null;
+        if (optLabel) {
+          item.optionLabel = optLabel;
+          item.price = optPrice;
+          item.priceLabel = optPrice != null ? `€${optPrice.toLocaleString()}` : cartData.priceLabel;
+        }
+      }
+
+      if (typeof window.addToCart === 'function') {
+        window.addToCart(item);
+      }
+    });
+  }
+</script>

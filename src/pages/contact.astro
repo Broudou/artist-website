@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const success = Astro.url.searchParams.get('success');
+const error = Astro.url.searchParams.get('error');
+const prefillItems = Astro.url.searchParams.get('items') || '';
+
+const errorMessages: Record<string, string> = {
+  missing_fields: 'Please fill in all fields.',
+  server_error: 'Something went wrong. Please try again.',
+};
+
+const defaultMessage = prefillItems
+  ? `Hello,\n\nI'm interested in the following works:\n${prefillItems}\n\nPlease let me know about availability and shipping.`
+  : '';
+---
+
+<BaseLayout title="Contact">
+  <div class="container section" style="padding-top: calc(64px + 3rem); max-width: 640px;">
+    <p style="font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;">
+      Get in touch
+    </p>
+    <h1 style="font-family:var(--font-display);font-size:clamp(2rem,4vw,3rem);font-weight:300;margin-bottom:2.5rem;">
+      Contact
+    </h1>
+
+    {success && (
+      <div class="alert alert--success" style="margin-bottom:1.5rem;">
+        Your message has been sent. I'll be in touch soon.
+      </div>
+    )}
+
+    {error && (
+      <div class="alert alert--error" style="margin-bottom:1.5rem;">
+        {errorMessages[error] || 'An error occurred.'}
+      </div>
+    )}
+
+    {!success && (
+      <form method="POST" action="/api/contact" style="display:flex;flex-direction:column;gap:1.25rem;">
+        <div class="form-group">
+          <label class="form-label" for="name">Name</label>
+          <input class="form-input" type="text" id="name" name="name" required autocomplete="name" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input class="form-input" type="email" id="email" name="email" required autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="message">Message</label>
+          <textarea
+            class="form-textarea"
+            id="message"
+            name="message"
+            rows="7"
+            required
+            style="min-height:160px;"
+          >{defaultMessage}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn--primary" style="width:fit-content;padding:0.75rem 2rem;">
+          Send message
+        </button>
+      </form>
+    )}
+  </div>
+</BaseLayout>

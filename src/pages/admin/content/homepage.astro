@@ -58,6 +58,19 @@ const imageFilename = content?.heroImageUrl?.split('/').pop() ?? '';
       </div>
 
       <div class="form-group form-group--full">
+        <label class="form-label" for="instagramUrl">Instagram URL</label>
+        <input
+          class="form-input"
+          type="url"
+          id="instagramUrl"
+          name="instagramUrl"
+          value={content?.instagramUrl || ''}
+          placeholder="https://www.instagram.com/yourusername"
+        />
+        <p class="form-hint">Shown in the site footer. Leave empty to hide the Instagram link.</p>
+      </div>
+
+      <div class="form-group form-group--full">
         <label class="form-label" for="heroText">Hero Text</label>
         <textarea
           class="form-textarea"

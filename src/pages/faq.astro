@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { connectDB } from '../lib/db';
+import { SiteContent } from '../lib/models/SiteContent';
+
+await connectDB();
+const content = await SiteContent.findOne({ key: 'faq' }).lean();
+
+interface FaqItem { q: string; a: string; }
+let items: FaqItem[] = [];
+try {
+  items = JSON.parse(content?.faqContent || '[]');
+} catch { items = []; }
+---
+
+<BaseLayout title="FAQ">
+  <div class="container section" style="padding-top: calc(64px + 3rem); max-width: 720px;">
+    <p style="font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;">
+      Questions
+    </p>
+    <h1 style="font-family:var(--font-display);font-size:clamp(2rem,4vw,3rem);font-weight:300;margin-bottom:3rem;">
+      Frequently Asked Questions
+    </h1>
+
+    {items.length === 0 ? (
+      <p style="color:var(--text-muted);font-style:italic;">No FAQ entries yet.</p>
+    ) : (
+      <div style="display:flex;flex-direction:column;gap:0;">
+        {items.map((item, i) => (
+          <details class="faq-item" open={i === 0}>
+            <summary class="faq-question">{item.q}</summary>
+            <div class="faq-answer">{item.a}</div>
+          </details>
+        ))}
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .faq-item:first-child {
+    border-top: 1px solid var(--border);
+  }
+
+  .faq-question {
+    list-style: none;
+    padding: 1.25rem 0;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 400;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .faq-question::-webkit-details-marker { display: none; }
+
+  .faq-question::after {
+    content: '+';
+    font-size: 1.25rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  details[open] .faq-question::after {
+    transform: rotate(45deg);
+  }
+
+  .faq-answer {
+    padding-bottom: 1.25rem;
+    color: var(--text-muted);
+    line-height: 1.75;
+    white-space: pre-line;
+    max-width: 65ch;
+  }
+</style>

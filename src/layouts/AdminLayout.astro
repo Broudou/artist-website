@@ -43,6 +43,9 @@ function isActive(path: string): string {
         <a href="/admin/content/about" class={`admin-nav-link ${isActive('/admin/content/about')}`}>
           About Page
         </a>
+        <a href="/admin/content/faq" class={`admin-nav-link ${isActive('/admin/content/faq')}`}>
+          FAQ
+        </a>
 
         <span class="admin-nav-section">Artworks</span>
         <a href="/admin/artworks" class={`admin-nav-link ${pathname === '/admin/artworks' ? 'active' : ''}`}>

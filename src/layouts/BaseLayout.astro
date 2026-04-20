@@ -15,6 +15,7 @@ await connectDB();
 const content = await SiteContent.findOne({ key: 'homepage' }).lean();
 const artistName = content?.artistName || 'Artist Portfolio';
 const tagline = content?.tagline || '';
+const instagramUrl = content?.instagramUrl || '';
 
 const {
   title = artistName,
@@ -41,9 +42,136 @@ const pageTitle = title === artistName ? artistName : `${title} — ${artistName
   </head>
   <body>
     <Nav artistName={artistName} />
+
+    <!-- Cart overlay + drawer -->
+    <div class="cart-overlay" id="cart-overlay"></div>
+    <aside class="cart-drawer" id="cart-drawer" aria-label="Shopping cart">
+      <div class="cart-drawer__header">
+        <h2 class="cart-drawer__title">Cart</h2>
+        <button class="cart-close" id="cart-close" aria-label="Close cart">✕</button>
+      </div>
+      <div class="cart-items" id="cart-items"></div>
+      <div class="cart-footer" id="cart-footer" hidden>
+        <div class="cart-total">
+          <span class="cart-total__label">Total</span>
+          <span class="cart-total__amount" id="cart-total-amount">€0</span>
+        </div>
+        <a href="/contact" class="cart-inquiry" id="cart-inquiry">Send Inquiry</a>
+      </div>
+    </aside>
+
     <main class="page-content">
       <slot />
     </main>
-    <Footer artistName={artistName} />
+    <Footer artistName={artistName} instagramUrl={instagramUrl} />
   </body>
 </html>
+
+<script>
+  const CART_KEY = 'artist_cart';
+
+  interface CartItem {
+    id: string;
+    slug: string;
+    title: string;
+    thumbnailUrl: string;
+    price: number | null;
+    priceLabel: string;
+    optionLabel?: string;
+  }
+
+  function getCart(): CartItem[] {
+    try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch { return []; }
+  }
+
+  function saveCart(items: CartItem[]) {
+    localStorage.setItem(CART_KEY, JSON.stringify(items));
+    renderCart();
+    updateBadge();
+  }
+
+  function updateBadge() {
+    const items = getCart();
+    const btn = document.getElementById('cart-count');
+    if (!btn) return;
+    if (items.length > 0) {
+      btn.textContent = String(items.length);
+      btn.removeAttribute('hidden');
+    } else {
+      btn.setAttribute('hidden', '');
+    }
+  }
+
+  function renderCart() {
+    const items = getCart();
+    const container = document.getElementById('cart-items')!;
+    const footer = document.getElementById('cart-footer')!;
+    const totalEl = document.getElementById('cart-total-amount')!;
+    const inquiryBtn = document.getElementById('cart-inquiry') as HTMLAnchorElement;
+
+    if (items.length === 0) {
+      container.innerHTML = '<p class="cart-empty">Your cart is empty</p>';
+      footer.hidden = true;
+      return;
+    }
+
+    container.innerHTML = items.map((item, i) => `
+      <div class="cart-item">
+        <img class="cart-item__img" src="${item.thumbnailUrl}" alt="${item.title}" />
+        <div>
+          <p class="cart-item__title">${item.title}</p>
+          ${item.optionLabel ? `<p class="cart-item__label">${item.optionLabel}</p>` : ''}
+          <p class="cart-item__price">${item.priceLabel}</p>
+        </div>
+        <button class="cart-item__remove" data-index="${i}" aria-label="Remove">✕</button>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.cart-item__remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number((btn as HTMLElement).dataset.index);
+        const updated = getCart();
+        updated.splice(idx, 1);
+        saveCart(updated);
+      });
+    });
+
+    const total = items.reduce((sum, item) => sum + (item.price ?? 0), 0);
+    totalEl.textContent = total > 0 ? `€${total.toLocaleString()}` : '—';
+    footer.hidden = false;
+
+    // Pre-fill inquiry link with cart contents
+    const titles = items.map(i => `- ${i.title}${i.optionLabel ? ` (${i.optionLabel})` : ''} ${i.priceLabel}`).join('\n');
+    inquiryBtn.href = `/contact?items=${encodeURIComponent(titles)}`;
+  }
+
+  function openCart() {
+    document.getElementById('cart-drawer')!.classList.add('open');
+    document.getElementById('cart-overlay')!.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeCart() {
+    document.getElementById('cart-drawer')!.classList.remove('open');
+    document.getElementById('cart-overlay')!.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Expose globally so artwork pages can call it
+  (window as any).addToCart = function(item: CartItem) {
+    const cart = getCart();
+    cart.push(item);
+    saveCart(cart);
+    openCart();
+  };
+
+  (window as any).openCart = openCart;
+
+  document.getElementById('cart-toggle')?.addEventListener('click', openCart);
+  document.getElementById('cart-close')?.addEventListener('click', closeCart);
+  document.getElementById('cart-overlay')?.addEventListener('click', closeCart);
+
+  // Init on load
+  renderCart();
+  updateBadge();
+</script>
