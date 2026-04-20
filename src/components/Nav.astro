@@ -7,27 +7,28 @@ const pathname = Astro.url.pathname;
 ---
 
 <nav class="site-nav">
-  <ul class="site-nav__links">
-    <li>
-      <a href="/" aria-current={pathname === '/' ? 'page' : undefined}>
-        Home
-      </a>
-    </li>
-    <li>
-      <a href="/gallery" aria-current={pathname.startsWith('/gallery') ? 'page' : undefined}>
-        Gallery
-      </a>
-    </li>
-  </ul>
+  <div class="site-nav__left">
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <ul class="site-nav__links">
+      <li>
+        <a href="/" aria-current={pathname === '/' ? 'page' : undefined}>Home</a>
+      </li>
+      <li>
+        <a href="/gallery" aria-current={pathname.startsWith('/gallery') ? 'page' : undefined}>Gallery</a>
+      </li>
+    </ul>
+  </div>
 
   <a href="/" class="site-nav__brand">{artistName}</a>
 
   <div class="site-nav__right">
     <ul class="site-nav__links">
       <li>
-        <a href="/about" aria-current={pathname === '/about' ? 'page' : undefined}>
-          About
-        </a>
+        <a href="/about" aria-current={pathname === '/about' ? 'page' : undefined}>About</a>
       </li>
     </ul>
     <button class="cart-btn" id="cart-toggle" aria-label="Open shopping cart">
@@ -36,3 +37,32 @@ const pathname = Astro.url.pathname;
     </button>
   </div>
 </nav>
+
+<div class="nav-mobile-menu" id="nav-mobile-menu" aria-hidden="true">
+  <a href="/" class="nav-mobile-link">Home</a>
+  <a href="/gallery" class="nav-mobile-link">Gallery</a>
+  <a href="/about" class="nav-mobile-link">About</a>
+</div>
+
+<script>
+  const hamburger = document.getElementById('nav-hamburger');
+  const menu = document.getElementById('nav-mobile-menu');
+
+  function closeMenu() {
+    hamburger?.classList.remove('open');
+    menu?.classList.remove('open');
+    hamburger?.setAttribute('aria-expanded', 'false');
+    menu?.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  hamburger?.addEventListener('click', () => {
+    const isOpen = hamburger.classList.toggle('open');
+    menu?.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', String(isOpen));
+    menu?.setAttribute('aria-hidden', String(!isOpen));
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  });
+
+  menu?.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+</script>
