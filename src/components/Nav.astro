@@ -18,16 +18,18 @@ const pathname = Astro.url.pathname;
         Gallery
       </a>
     </li>
-    <li>
-      <a href="/about" aria-current={pathname === '/about' ? 'page' : undefined}>
-        About
-      </a>
-    </li>
   </ul>
 
   <a href="/" class="site-nav__brand">{artistName}</a>
 
   <div class="site-nav__right">
+    <ul class="site-nav__links">
+      <li>
+        <a href="/about" aria-current={pathname === '/about' ? 'page' : undefined}>
+          About
+        </a>
+      </li>
+    </ul>
     <button class="cart-btn" id="cart-toggle" aria-label="Open shopping cart">
       Cart
       <span class="cart-count" id="cart-count" hidden>0</span>

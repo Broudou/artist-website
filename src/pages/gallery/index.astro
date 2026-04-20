@@ -12,11 +12,7 @@ const artworks = await Artwork.find(query).sort({ createdAt: -1 }).lean();
 ---
 
 <BaseLayout title="Gallery" description="Browse all artworks">
-  <div class="container section" style="padding-top:calc(64px + 3rem);">
-    <div class="section__header">
-      <h1 class="section__title">Gallery</h1>
-    </div>
-
+  <div class="gallery-page">
     <div class="filter-bar">
       <a href="/gallery" class={`filter-btn ${!category ? 'active' : ''}`}>All</a>
       <a href="/gallery?category=drawing" class={`filter-btn ${category === 'drawing' ? 'active' : ''}`}>
