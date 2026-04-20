@@ -7,8 +7,12 @@ const pathname = Astro.url.pathname;
 ---
 
 <nav class="site-nav">
-  <a href="/" class="site-nav__brand">{artistName}</a>
   <ul class="site-nav__links">
+    <li>
+      <a href="/" aria-current={pathname === '/' ? 'page' : undefined}>
+        Home
+      </a>
+    </li>
     <li>
       <a href="/gallery" aria-current={pathname.startsWith('/gallery') ? 'page' : undefined}>
         Gallery
@@ -20,8 +24,13 @@ const pathname = Astro.url.pathname;
       </a>
     </li>
   </ul>
-  <button class="cart-btn" id="cart-toggle" aria-label="Open shopping cart">
-    Cart
-    <span class="cart-count" id="cart-count" hidden>0</span>
-  </button>
+
+  <a href="/" class="site-nav__brand">{artistName}</a>
+
+  <div class="site-nav__right">
+    <button class="cart-btn" id="cart-toggle" aria-label="Open shopping cart">
+      Cart
+      <span class="cart-count" id="cart-count" hidden>0</span>
+    </button>
+  </div>
 </nav>
