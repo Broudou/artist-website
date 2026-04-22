@@ -234,18 +234,14 @@ p { max-width: 65ch; }
 /* ─── Hero ─── */
 .hero {
   position: relative;
-  isolation: isolate;
-  display: grid;
-  grid-template-areas: "stack";
-  grid-template-rows: minmax(100vh, auto);
+  min-height: 100vh;
   margin-top: -64px;
+  overflow: hidden;
 }
 
-/* Image sits behind everything via z-index:-1 inside an isolated stacking context */
 .hero__image-wrap {
   position: absolute;
   inset: 0;
-  z-index: -1;
 }
 
 .hero__image-wrap img,
@@ -256,13 +252,9 @@ p { max-width: 65ch; }
   object-position: center;
 }
 
-/* Overlay and content share the grid cell; overlay first = behind content */
-.hero__overlay,
-.hero__content {
-  grid-area: stack;
-}
-
 .hero__overlay {
+  position: absolute;
+  inset: 0;
   background:
     linear-gradient(to bottom, var(--bg) 0%, transparent 22%),
     linear-gradient(to right, rgba(10, 8, 6, 0.5) 0%, transparent 65%),
@@ -271,11 +263,13 @@ p { max-width: 65ch; }
 }
 
 .hero__content {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
   text-align: left;
+  min-height: 100vh;
   padding: 6rem var(--gutter) 4rem;
   max-width: 720px;
   color: #fff;
@@ -283,9 +277,8 @@ p { max-width: 65ch; }
 
 .hero__content--dark {
   background: var(--bg-dark);
-  min-height: 70vh;
-  align-items: flex-start;
-  text-align: left;
+  width: 100%;
+  max-width: none;
 }
 
 .hero__text {
@@ -425,8 +418,9 @@ p { max-width: 65ch; }
 
 .artwork-card__title {
   font-family: var(--font-display);
-  font-size: 0.9375rem;
-  font-weight: 400;
+  font-size: clamp(1.0625rem, 2vw, 1.375rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 .artwork-card__meta {
@@ -436,10 +430,10 @@ p { max-width: 65ch; }
 }
 
 .artwork-card__price {
-  margin-top: 0.2rem;
-  font-size: 0.75rem;
-  font-weight: 300;
-  color: var(--text-light);
+  margin-top: 0.3rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--text-muted);
   letter-spacing: 0.02em;
 }
 

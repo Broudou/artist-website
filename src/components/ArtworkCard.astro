@@ -25,7 +25,6 @@ const displayPrice = artwork.price != null
   </div>
   <div class="artwork-card__body">
     <p class="artwork-card__title">{artwork.title}</p>
-    {artwork.medium && <p class="artwork-card__meta">{artwork.medium}</p>}
     {artwork.available && displayPrice ? (
       <p class="artwork-card__price">{displayPrice}</p>
     ) : !artwork.available ? (
