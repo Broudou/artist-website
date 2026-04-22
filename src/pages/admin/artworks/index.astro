@@ -39,7 +39,7 @@ const artworks = await Artwork.find().sort({ createdAt: -1 }).lean();
               <td>
                 <img class="admin-thumb" src={artwork.thumbnailUrl} alt={artwork.title} />
               </td>
-              <td style="font-family:var(--font-display);font-size:1rem;max-width:200px;">
+              <td style="max-width:200px;">
                 {artwork.title}
               </td>
               <td>
@@ -69,6 +69,14 @@ const artworks = await Artwork.find().sort({ createdAt: -1 }).lean();
                   <a href={`/gallery/${artwork.slug}`} target="_blank" class="btn btn--ghost" style="padding:0.3rem 0.75rem;font-size:0.8125rem;" title="View on site">
                     ↗
                   </a>
+                  <button
+                    class="btn btn--danger"
+                    style="padding:0.3rem 0.75rem;font-size:0.8125rem;"
+                    data-id={String(artwork._id)}
+                    data-title={artwork.title}
+                  >
+                    ✕
+                  </button>
                 </div>
               </td>
             </tr>
@@ -78,3 +86,25 @@ const artworks = await Artwork.find().sort({ createdAt: -1 }).lean();
     </div>
   )}
 </AdminLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('button[data-id]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id!;
+      const title = btn.dataset.title || 'this artwork';
+      if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+      btn.disabled = true;
+      btn.textContent = '…';
+      const fd = new FormData();
+      fd.append('_method', 'DELETE');
+      const res = await fetch(`/api/artworks/${id}`, { method: 'POST', body: fd });
+      if (res.ok || res.redirected) {
+        btn.closest('tr')?.remove();
+      } else {
+        btn.disabled = false;
+        btn.textContent = '✕';
+        alert('Failed to delete artwork.');
+      }
+    });
+  });
+</script>

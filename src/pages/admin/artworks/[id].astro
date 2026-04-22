@@ -113,12 +113,7 @@ const printSizesJson = JSON.stringify(artwork.printSizes || []);
     <div class="form-actions">
       <button type="submit" class="btn btn--primary">Save Changes</button>
       <a href="/admin/artworks" class="btn btn--ghost">Cancel</a>
-
-      <form method="POST" action={`/api/artworks/${id}`} style="margin-left:auto;"
-        onsubmit="return confirm('Delete this artwork? This cannot be undone.')">
-        <input type="hidden" name="_method" value="DELETE" />
-        <button type="submit" class="btn btn--danger">Delete</button>
-      </form>
+      <button type="button" class="btn btn--danger" style="margin-left:auto;" id="delete-btn">Delete artwork</button>
     </div>
   </form>
 </AdminLayout>
@@ -167,4 +162,16 @@ const printSizesJson = JSON.stringify(artwork.printSizes || []);
 
   // Initialize
   renderPrintSizes();
+</script>
+
+<script define:vars={{ artworkId: id }}>
+  document.getElementById('delete-btn')?.addEventListener('click', async () => {
+    if (!confirm('Delete this artwork? This cannot be undone.')) return;
+    const fd = new FormData();
+    fd.append('_method', 'DELETE');
+    const res = await fetch(`/api/artworks/${artworkId}`, { method: 'POST', body: fd });
+    if (res.ok || res.redirected) {
+      window.location.href = '/admin/artworks';
+    }
+  });
 </script>
