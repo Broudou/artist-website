@@ -52,9 +52,16 @@ const printOptions = artwork.printSizes.map(ps => ({
 
         <h1 class="artwork-detail__title">{artwork.title}</h1>
 
-        <p class="artwork-detail__meta">
-          {[artwork.medium, artwork.year?.toString()].filter(Boolean).join(' · ')}
-        </p>
+        {artwork.available && (displayPrice || artwork.printSizes.length > 0) && (
+          <p class="artwork-detail__price-tag">
+            {displayPrice ?? `From €${Math.min(...artwork.printSizes.map(p => p.price)).toLocaleString()}`}
+          </p>
+        )}
+        {!artwork.available && <span class="sold-badge" style="align-self:flex-start;">Sold</span>}
+
+        {artwork.medium && (
+          <p class="artwork-detail__meta">{artwork.medium}</p>
+        )}
 
         {artwork.description && (
           <div class="artwork-detail__description">
@@ -65,13 +72,6 @@ const printOptions = artwork.printSizes.map(ps => ({
         <div class="artwork-detail__pricing">
           {artwork.available ? (
             <>
-              {displayPrice && (
-                <div style="margin-bottom:1.5rem;">
-                  <p class="pricing-label">Original</p>
-                  <p class="pricing-original">{displayPrice}</p>
-                </div>
-              )}
-
               {artwork.printSizes.length > 0 && (
                 <div>
                   <p class="pricing-label">Prints available</p>
@@ -92,9 +92,7 @@ const printOptions = artwork.printSizes.map(ps => ({
                 </p>
               )}
             </>
-          ) : (
-            <span class="sold-badge">Sold</span>
-          )}
+          ) : null}
         </div>
 
         {artwork.available && (displayPrice || artwork.printSizes.length > 0) && (
