@@ -31,89 +31,38 @@ const imageFilename = content?.heroImageUrl?.split('/').pop() ?? '';
 
     <div class="form-grid">
 
-      <!-- Text fields -->
+      <!-- ══ Section 1: Splash image ══ -->
       <div class="form-group form-group--full">
-        <label class="form-label" for="artistName">Artist Name</label>
-        <input
-          class="form-input"
-          type="text"
-          id="artistName"
-          name="artistName"
-          value={content?.artistName || ''}
-          placeholder="e.g. Marie Dupont"
-        />
-        <p class="form-hint">Displayed in the navigation and hero section.</p>
-      </div>
-
-      <div class="form-group form-group--full">
-        <label class="form-label" for="tagline">Tagline</label>
-        <input
-          class="form-input"
-          type="text"
-          id="tagline"
-          name="tagline"
-          value={content?.tagline || ''}
-          placeholder="e.g. Original drawings & fine art photography"
-        />
-      </div>
-
-      <div class="form-group form-group--full">
-        <label class="form-label" for="instagramUrl">Instagram URL</label>
-        <input
-          class="form-input"
-          type="url"
-          id="instagramUrl"
-          name="instagramUrl"
-          value={content?.instagramUrl || ''}
-          placeholder="https://www.instagram.com/yourusername"
-        />
-        <p class="form-hint">Shown in the site footer. Leave empty to hide the Instagram link.</p>
-      </div>
-
-      <div class="form-group form-group--full">
-        <label class="form-label" for="heroText">Hero Text</label>
-        <textarea
-          class="form-textarea"
-          id="heroText"
-          name="heroText"
-          rows="4"
-          placeholder="A short paragraph shown on the homepage hero."
-        >{content?.heroText || ''}</textarea>
-      </div>
-
-      <!-- Hero preview -->
-      {(content?.heroImageUrl || content?.heroVideoUrl) && (
-        <div class="form-group form-group--full">
-          <p class="form-section-title" style="margin-bottom:0.75rem;">Hero Preview</p>
-          <div class="hero-preview">
-            <div class="hero-preview__bg">
-              {content.heroVideoUrl ? (
-                <video src={content.heroVideoUrl} muted autoplay loop playsinline />
-              ) : (
-                <img src={content.heroImageUrl} alt="Hero background preview" />
-              )}
-            </div>
-            <div class="hero-preview__overlay"></div>
-            <div class="hero-preview__content">
-              {content.tagline && <p class="hero-preview__tagline">{content.tagline}</p>}
-              <p class="hero-preview__title">{content.artistName || 'Artist Name'}</p>
-              {content.heroText && <p class="hero-preview__text">{content.heroText}</p>}
-            </div>
-          </div>
-          <p class="form-hint" style="margin-top:0.5rem;">Save changes to refresh this preview.</p>
-        </div>
-      )}
-
-      <!-- Hero background divider -->
-      <div class="form-group form-group--full">
-        <p class="form-section-title">Hero Background</p>
+        <p class="section-label">
+          <span class="section-num">1</span>
+          Full-screen image
+        </p>
         <p class="form-hint">
-          Choose a video <em>or</em> a photo. If both are set, the video takes priority.
-          Leave both empty to use the first featured artwork as background.
+          Displayed as a full-viewport image at the top of the homepage.
+          Choose a video <em>or</em> a photo (video takes priority).
+          Leave both empty to use the first featured artwork as fallback.
         </p>
       </div>
 
-      <!-- Hero Photo -->
+      <!-- Splash preview -->
+      {(content?.heroImageUrl || content?.heroVideoUrl) && (
+        <div class="form-group form-group--full">
+          <div class="splash-preview">
+            <div class="splash-preview__media">
+              {content.heroVideoUrl ? (
+                <video src={content.heroVideoUrl} muted autoplay loop playsinline />
+              ) : (
+                <img src={content.heroImageUrl} alt="Section 1 preview" />
+              )}
+            </div>
+            <div class="splash-preview__overlay"></div>
+            <p class="splash-preview__label">Section 1 — Splash</p>
+          </div>
+          <p class="form-hint" style="margin-top:0.5rem;">Save to refresh preview.</p>
+        </div>
+      )}
+
+      <!-- Background Photo -->
       <div class="form-group form-group--full hero-bg-block">
         <label class="form-label">Background Photo</label>
 
@@ -121,7 +70,7 @@ const imageFilename = content?.heroImageUrl?.split('/').pop() ?? '';
           <div style="margin-bottom:0.75rem;">
             <img
               src={content.heroImageUrl}
-              alt="Current hero photo"
+              alt="Current splash photo"
               style="max-width:360px;width:100%;border-radius:4px;border:1px solid var(--border);object-fit:cover;max-height:200px;"
             />
             <p class="form-hint" style="margin-top:0.375rem;">{imageFilename}</p>
@@ -144,9 +93,12 @@ const imageFilename = content?.heroImageUrl?.split('/').pop() ?? '';
         <p class="form-hint">JPEG, PNG or WebP</p>
       </div>
 
-      <!-- Hero Video -->
+      <!-- Background Video -->
       <div class="form-group form-group--full hero-bg-block">
-        <label class="form-label">Background Video <span class="badge badge--gold" style="vertical-align:middle;font-size:0.6rem;">takes priority over photo</span></label>
+        <label class="form-label">
+          Background Video
+          <span class="badge badge--gold" style="vertical-align:middle;font-size:0.6rem;margin-left:0.375rem;">takes priority over photo</span>
+        </label>
 
         {content?.heroVideoUrl ? (
           <div style="margin-bottom:0.75rem;">
@@ -178,6 +130,86 @@ const imageFilename = content?.heroImageUrl?.split('/').pop() ?? '';
         </p>
       </div>
 
+      <!-- ══ Section 2: Intro text ══ -->
+      <div class="form-group form-group--full" style="margin-top:1rem;">
+        <p class="section-label">
+          <span class="section-num">2</span>
+          Intro text
+        </p>
+        <p class="form-hint">
+          Displayed on the cream-background section below the splash image.
+        </p>
+      </div>
+
+      <!-- Intro preview -->
+      <div class="form-group form-group--full">
+        <div class="intro-preview">
+          {content?.tagline && <p class="intro-preview__tagline">{content.tagline}</p>}
+          <p class="intro-preview__title">{content?.artistName || 'Artist Name'}</p>
+          {content?.heroText && <p class="intro-preview__text">{content.heroText}</p>}
+          <span class="intro-preview__cta">Explore Gallery</span>
+        </div>
+        <p class="form-hint" style="margin-top:0.5rem;">Save to refresh preview.</p>
+      </div>
+
+      <div class="form-group form-group--full">
+        <label class="form-label" for="artistName">Artist Name</label>
+        <input
+          class="form-input"
+          type="text"
+          id="artistName"
+          name="artistName"
+          value={content?.artistName || ''}
+          placeholder="e.g. Marie Dupont"
+        />
+        <p class="form-hint">Also shown in the navigation bar.</p>
+      </div>
+
+      <div class="form-group form-group--full">
+        <label class="form-label" for="tagline">Tagline</label>
+        <input
+          class="form-input"
+          type="text"
+          id="tagline"
+          name="tagline"
+          value={content?.tagline || ''}
+          placeholder="e.g. Original drawings & fine art photography"
+        />
+        <p class="form-hint">Small uppercase label above the artist name.</p>
+      </div>
+
+      <div class="form-group form-group--full">
+        <label class="form-label" for="heroText">Description</label>
+        <textarea
+          class="form-textarea"
+          id="heroText"
+          name="heroText"
+          rows="4"
+          placeholder="A short paragraph describing your work or practice."
+        >{content?.heroText || ''}</textarea>
+      </div>
+
+      <!-- ══ Other ══ -->
+      <div class="form-group form-group--full" style="margin-top:1rem;">
+        <p class="section-label" style="background:none;border:none;padding:0;">
+          <span class="section-num" style="background:var(--border-strong);color:var(--text);">↗</span>
+          Social & links
+        </p>
+      </div>
+
+      <div class="form-group form-group--full">
+        <label class="form-label" for="instagramUrl">Instagram URL</label>
+        <input
+          class="form-input"
+          type="url"
+          id="instagramUrl"
+          name="instagramUrl"
+          value={content?.instagramUrl || ''}
+          placeholder="https://www.instagram.com/yourusername"
+        />
+        <p class="form-hint">Shown in the bottom contact section and footer. Leave empty to hide.</p>
+      </div>
+
     </div>
 
     <div class="form-actions">
@@ -187,15 +219,32 @@ const imageFilename = content?.heroImageUrl?.split('/').pop() ?? '';
 </AdminLayout>
 
 <style>
-  .form-section-title {
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
     font-size: 0.78125rem;
     letter-spacing: 0.05em;
     font-weight: 500;
     color: var(--text);
     text-transform: uppercase;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.625rem;
     margin-bottom: 0.25rem;
+  }
+
+  .section-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.375rem;
+    height: 1.375rem;
+    border-radius: 50%;
+    background: var(--bg-dark);
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    flex-shrink: 0;
   }
 
   .hero-bg-block {
@@ -205,65 +254,91 @@ const imageFilename = content?.heroImageUrl?.split('/').pop() ?? '';
     padding: 1.25rem;
   }
 
-  .hero-preview {
+  /* Section 1 splash preview */
+  .splash-preview {
     position: relative;
-    height: 220px;
+    height: 200px;
     border-radius: 6px;
     overflow: hidden;
     border: 1px solid var(--border);
+    background: var(--bg-dark);
   }
 
-  .hero-preview__bg {
+  .splash-preview__media {
     position: absolute;
     inset: 0;
   }
 
-  .hero-preview__bg img,
-  .hero-preview__bg video {
+  .splash-preview__media img,
+  .splash-preview__media video {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
   }
 
-  .hero-preview__overlay {
+  .splash-preview__overlay {
     position: absolute;
     inset: 0;
-    background:
-      linear-gradient(to right, rgba(10, 8, 6, 0.6) 0%, transparent 75%);
+    background: linear-gradient(to bottom, rgba(10,8,6,0.15) 0%, rgba(10,8,6,0.1) 60%, rgba(10,8,6,0.3) 100%);
   }
 
-  .hero-preview__content {
-    position: relative;
-    height: 100%;
+  .splash-preview__label {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0.875rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    background: rgba(0,0,0,0.35);
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+  }
+
+  /* Section 2 intro preview */
+  .intro-preview {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2rem 2.5rem;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    padding: 2rem;
-    color: #fff;
+    gap: 0.5rem;
   }
 
-  .hero-preview__tagline {
+  .intro-preview__tagline {
     font-size: 0.6rem;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    opacity: 0.9;
-    margin-bottom: 0.375rem;
+    color: var(--accent);
   }
 
-  .hero-preview__title {
+  .intro-preview__title {
     font-family: var(--font-display);
-    font-size: 1.625rem;
-    font-weight: 600;
-    line-height: 1.15;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    margin-bottom: 0.375rem;
+    font-size: 1.75rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--text);
   }
 
-  .hero-preview__text {
-    font-size: 0.75rem;
-    opacity: 0.85;
-    max-width: 280px;
-    line-height: 1.55;
+  .intro-preview__text {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    max-width: 48ch;
+  }
+
+  .intro-preview__cta {
+    display: inline-block;
+    margin-top: 0.25rem;
+    padding: 0.5rem 1.25rem;
+    border: 1px solid var(--text);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text);
+    width: fit-content;
   }
 </style>

@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/Hero.astro';
 import ArtworkCard from '../components/ArtworkCard.astro';
 import { connectDB } from '../lib/db';
 import { Artwork } from '../lib/models/Artwork';
@@ -8,41 +7,71 @@ import { SiteContent } from '../lib/models/SiteContent';
 
 await connectDB();
 
-const [content, featured] = await Promise.all([
+const [content, faqDoc, featured] = await Promise.all([
   SiteContent.findOne({ key: 'homepage' }).lean(),
+  SiteContent.findOne({ key: 'faq' }).lean(),
   Artwork.find({ featured: true }).sort({ createdAt: -1 }).limit(6).lean(),
 ]);
 
-const artistName = content?.artistName || 'Artist Portfolio';
-const tagline = content?.tagline || '';
-const heroText = content?.heroText || '';
+const artistName   = content?.artistName  || 'Artist Portfolio';
+const tagline      = content?.tagline     || '';
+const heroText     = content?.heroText    || '';
 const heroVideoUrl = content?.heroVideoUrl || '';
 const heroImageUrl = content?.heroImageUrl || '';
+const instagramUrl = content?.instagramUrl || '';
 
-const hero = featured[0];
+const firstFeatured = featured[0];
+const hasSplashBg   = heroVideoUrl || heroImageUrl || !!firstFeatured?.imageUrl;
+
+let faqItems: { q: string; a: string }[] = [];
+try {
+  if (faqDoc?.faqContent) faqItems = JSON.parse(faqDoc.faqContent);
+} catch {}
 ---
 
 <BaseLayout title={artistName} description={tagline}>
-  <Hero
-    artistName={artistName}
-    tagline={tagline}
-    heroText={heroText}
-    heroVideoUrl={heroVideoUrl}
-    heroImageUrl={heroImageUrl}
-    featuredImageUrl={hero?.imageUrl}
-    featuredImageTitle={hero?.title}
-    featuredSlug={hero?.slug}
-  />
 
+  <!-- ① Full-screen splash image -->
+  {hasSplashBg && (
+    <section class="hp-splash">
+      {heroVideoUrl ? (
+        <video class="hp-splash__media" autoplay muted loop playsinline aria-hidden="true">
+          <source src={heroVideoUrl} type={heroVideoUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} />
+        </video>
+      ) : heroImageUrl ? (
+        <img class="hp-splash__media" src={heroImageUrl} alt="" aria-hidden="true" />
+      ) : firstFeatured?.imageUrl ? (
+        <img class="hp-splash__media" src={firstFeatured.imageUrl} alt="" aria-hidden="true" />
+      ) : null}
+      <div class="hp-splash__overlay" aria-hidden="true"></div>
+      <a class="hp-splash__scroll" href="#hp-intro" aria-label="Scroll to content">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5v14M5 12l7 7 7-7"/>
+        </svg>
+      </a>
+    </section>
+  )}
+
+  <!-- ② Intro / text -->
+  <section class="hp-intro" id="hp-intro" class:list={[{ 'hp-intro--no-splash': !hasSplashBg }]}>
+    <div class="hp-intro__inner">
+      {tagline && <p class="hp-intro__tagline">{tagline}</p>}
+      <h1 class="hp-intro__title">{artistName}</h1>
+      {heroText && <p class="hp-intro__text">{heroText}</p>}
+      <a href="/gallery" class="hp-intro__cta">Explore Gallery</a>
+    </div>
+  </section>
+
+  <!-- ③ Featured artworks -->
   {featured.length > 0 && (
-    <section class="section">
-      <div class="gallery-page" style="padding-top:0">
-        <div class="section__header">
-          <h2 class="section__title">Featured Works</h2>
+    <section class="hp-gallery">
+      <div class="hp-gallery__inner">
+        <div class="hp-gallery__header">
+          <h2 class="hp-gallery__title">Featured Works</h2>
           <a href="/gallery" class="section__link">View all →</a>
         </div>
         <div class="gallery-grid">
-          {featured.map((artwork) => (
+          {featured.map(artwork => (
             <ArtworkCard artwork={artwork} />
           ))}
         </div>
@@ -50,13 +79,72 @@ const hero = featured[0];
     </section>
   )}
 
-  {featured.length === 0 && (
-    <section class="section">
-      <div class="container" style="text-align:center;padding-block:5rem;">
-        <p style="color:var(--text-muted);font-family:var(--font-display);font-size:1.5rem;">
-          Gallery coming soon
+  <!-- ④ FAQ + Contact -->
+  <section class="hp-bottom">
+    <div class="hp-bottom__grid">
+
+      {faqItems.length > 0 && (
+        <div class="hp-bottom__faq">
+          <h2 class="hp-bottom__heading">Questions</h2>
+          <div class="hp-faq-list">
+            {faqItems.map((item, i) => (
+              <details class="hp-faq-item" open={i === 0 ? true : undefined}>
+                <summary class="hp-faq-item__q">{item.q}</summary>
+                <p class="hp-faq-item__a">{item.a}</p>
+              </details>
+            ))}
+          </div>
+          <a href="/faq" class="hp-bottom__faq-more">View all questions →</a>
+        </div>
+      )}
+
+      <div class="hp-bottom__contact">
+        <h2 class="hp-bottom__heading">Get in touch</h2>
+        <p class="hp-bottom__contact-text">
+          Interested in a piece, a commission, or just have a question?
+          Send a message and I&rsquo;ll get back to you.
         </p>
+        <div class="hp-bottom__links">
+          <a href="/contact" class="hp-bottom__link-btn">Send a message</a>
+          {instagramUrl && (
+            <a href={instagramUrl} class="hp-bottom__social" target="_blank" rel="noopener noreferrer">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+              </svg>
+              Instagram
+            </a>
+          )}
+        </div>
       </div>
-    </section>
-  )}
+
+    </div>
+  </section>
+
 </BaseLayout>
+
+<script>
+  // Transparent nav over splash section
+  const nav = document.querySelector('.site-nav');
+  const splash = document.querySelector('.hp-splash');
+  if (nav && splash) {
+    const navObs = new IntersectionObserver(
+      ([e]) => nav.classList.toggle('nav--over-dark', e.isIntersecting),
+      { threshold: 0.4 }
+    );
+    navObs.observe(splash);
+  }
+
+  // Scroll-triggered reveal animations
+  const revealObs = new IntersectionObserver(
+    entries => entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('is-visible');
+        revealObs.unobserve(e.target);
+      }
+    }),
+    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+  );
+  document.querySelectorAll('.hp-intro, .hp-gallery, .hp-bottom').forEach(el => revealObs.observe(el));
+</script>
