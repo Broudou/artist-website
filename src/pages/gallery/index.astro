@@ -6,23 +6,11 @@ import { Artwork } from '../../lib/models/Artwork';
 
 await connectDB();
 
-const category = Astro.url.searchParams.get('category') as 'drawing' | 'photo' | null;
-const query = category ? { category } : {};
-const artworks = await Artwork.find(query).sort({ createdAt: -1 }).lean();
+const artworks = await Artwork.find({}).sort({ createdAt: -1 }).lean();
 ---
 
 <BaseLayout title="Gallery" description="Browse all artworks">
   <div class="gallery-page">
-    <div class="filter-bar">
-      <a href="/gallery" class={`filter-btn ${!category ? 'active' : ''}`}>All</a>
-      <a href="/gallery?category=drawing" class={`filter-btn ${category === 'drawing' ? 'active' : ''}`}>
-        Drawings
-      </a>
-      <a href="/gallery?category=photo" class={`filter-btn ${category === 'photo' ? 'active' : ''}`}>
-        Photography
-      </a>
-    </div>
-
     {artworks.length > 0 ? (
       <div class="gallery-grid">
         {artworks.map((artwork) => (
