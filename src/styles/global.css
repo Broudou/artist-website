@@ -984,6 +984,29 @@ p { max-width: 65ch; }
 @media (max-width: 768px) {
   .site-nav__links { display: none; }
   .nav-hamburger { display: flex; }
+
+  .site-nav__brand {
+    position: static;
+    transform: none;
+    order: -1;
+    flex: 0 1 auto;
+    font-size: 1.75rem;
+  }
+
+  .site-nav {
+    gap: 1.25rem;
+  }
+
+  .site-nav__left {
+    order: 2;
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .site-nav__right {
+    order: 3;
+    flex: 0 0 auto;
+  }
 }
 
 /* ─── Page transition util ─── */
