@@ -125,17 +125,6 @@ try {
 </BaseLayout>
 
 <script>
-  // Transparent nav over splash section
-  const nav = document.querySelector('.site-nav');
-  const splash = document.querySelector('.hp-splash');
-  if (nav && splash) {
-    const navObs = new IntersectionObserver(
-      ([e]) => nav.classList.toggle('nav--over-dark', e.isIntersecting),
-      { threshold: 0.4 }
-    );
-    navObs.observe(splash);
-  }
-
   // Scroll-triggered reveal animations
   const revealObs = new IntersectionObserver(
     entries => entries.forEach(e => {

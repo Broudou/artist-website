@@ -91,37 +91,8 @@ p { max-width: 65ch; }
   display: flex;
   align-items: center;
   padding: 1.25rem var(--gutter);
-  background: var(--bg);
-  transition: background 0.4s ease;
+  background: #fff;
 }
-
-/* Transparent nav over homepage splash image */
-.nav--over-dark { background: transparent; }
-
-.nav--over-dark .site-nav__links a {
-  color: #fff;
-  text-shadow:
-    0 1px 2px rgba(0,0,0,0.7),
-    0 0 14px rgba(0,0,0,0.55);
-}
-.nav--over-dark .site-nav__links a:hover,
-.nav--over-dark .site-nav__links a[aria-current="page"] { color: #fff; opacity: 0.78; }
-
-.nav--over-dark .site-nav__brand {
-  color: #fff;
-  text-shadow:
-    0 1px 3px rgba(0,0,0,0.7),
-    0 0 16px rgba(0,0,0,0.5);
-}
-
-.nav--over-dark .nav-hamburger span { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.5); }
-
-.nav--over-dark .cart-btn {
-  color: #fff;
-  border-color: rgba(255,255,255,0.55);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.55);
-}
-.nav--over-dark .cart-btn:hover { color: #fff; border-color: rgba(255,255,255,0.85); }
 
 .site-nav__left,
 .site-nav__right {
@@ -152,10 +123,6 @@ p { max-width: 65ch; }
   width: auto;
   max-width: 220px;
   object-fit: contain;
-}
-
-.nav--over-dark .site-nav__logo {
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6)) drop-shadow(0 0 12px rgba(0,0,0,0.4));
 }
 
 .site-nav__links {
@@ -997,13 +964,13 @@ p { max-width: 65ch; }
     gap: 1.25rem;
   }
 
-  .site-nav__left {
+  .site-nav__right {
     order: 2;
     flex: 0 0 auto;
     margin-left: auto;
   }
 
-  .site-nav__right {
+  .site-nav__left {
     order: 3;
     flex: 0 0 auto;
   }
