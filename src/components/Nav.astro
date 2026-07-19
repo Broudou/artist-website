@@ -1,8 +1,9 @@
 ---
 interface Props {
   artistName: string;
+  logoUrl?: string;
 }
-const { artistName } = Astro.props;
+const { artistName, logoUrl } = Astro.props;
 const pathname = Astro.url.pathname;
 ---
 
@@ -23,7 +24,9 @@ const pathname = Astro.url.pathname;
     </ul>
   </div>
 
-  <a href="/" class="site-nav__brand">{artistName}</a>
+  <a href="/" class="site-nav__brand">
+    {logoUrl ? <img src={logoUrl} alt={artistName} class="site-nav__logo" /> : artistName}
+  </a>
 
   <div class="site-nav__right">
     <ul class="site-nav__links">

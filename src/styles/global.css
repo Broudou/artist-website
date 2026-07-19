@@ -146,6 +146,18 @@ p { max-width: 65ch; }
 
 .site-nav__brand:hover { color: inherit; }
 
+.site-nav__logo {
+  display: block;
+  max-height: 48px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+}
+
+.nav--over-dark .site-nav__logo {
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6)) drop-shadow(0 0 12px rgba(0,0,0,0.4));
+}
+
 .site-nav__links {
   display: flex;
   gap: 2rem;

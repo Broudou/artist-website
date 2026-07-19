@@ -10,6 +10,7 @@ const error = Astro.url.searchParams.get('error');
 
 const videoFilename = content?.heroVideoUrl?.split('/').pop() ?? '';
 const imageFilename = content?.heroImageUrl?.split('/').pop() ?? '';
+const logoFilename = content?.logoUrl?.split('/').pop() ?? '';
 ---
 
 <AdminLayout title="Homepage Content">
@@ -162,7 +163,37 @@ const imageFilename = content?.heroImageUrl?.split('/').pop() ?? '';
           value={content?.artistName || ''}
           placeholder="e.g. Marie Dupont"
         />
-        <p class="form-hint">Also shown in the navigation bar.</p>
+        <p class="form-hint">Shown in the navigation bar unless a logo image is set below.</p>
+      </div>
+
+      <div class="form-group form-group--full hero-bg-block">
+        <label class="form-label">Nav Bar Logo</label>
+
+        {content?.logoUrl ? (
+          <div style="margin-bottom:0.75rem;">
+            <img
+              src={content.logoUrl}
+              alt="Current nav logo"
+              style="max-width:220px;max-height:80px;width:auto;border-radius:4px;border:1px solid var(--border);background:var(--bg-dark);padding:0.5rem;object-fit:contain;"
+            />
+            <p class="form-hint" style="margin-top:0.375rem;">{logoFilename}</p>
+          </div>
+          <label class="form-check" style="margin-bottom:0.75rem;">
+            <input type="checkbox" name="removeLogo" value="1" />
+            Remove current logo
+          </label>
+        ) : (
+          <p class="form-hint" style="margin-bottom:0.5rem;">No logo set — the artist name text above is shown instead.</p>
+        )}
+
+        <input
+          class="form-input"
+          type="file"
+          name="logo"
+          accept="image/jpeg,image/png,image/webp"
+          style="padding:0.375rem 0.5rem;"
+        />
+        <p class="form-hint">JPEG, PNG or WebP &middot; transparent PNG recommended &middot; resized to fit the nav bar</p>
       </div>
 
       <div class="form-group form-group--full">

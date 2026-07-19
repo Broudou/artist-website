@@ -3,6 +3,7 @@ import mongoose, { type Document, type Model } from 'mongoose';
 export interface ISiteContent extends Document {
   key: string;
   artistName: string;
+  logoUrl: string;
   tagline: string;
   heroText: string;
   heroVideoUrl: string;
@@ -16,6 +17,7 @@ export interface ISiteContent extends Document {
 const SiteContentSchema = new mongoose.Schema<ISiteContent>({
   key: { type: String, required: true, unique: true },
   artistName: { type: String, default: '' },
+  logoUrl: { type: String, default: '' },
   tagline: { type: String, default: '' },
   heroText: { type: String, default: '' },
   heroVideoUrl: { type: String, default: '' },

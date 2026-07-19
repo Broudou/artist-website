@@ -51,6 +51,27 @@ export async function processImage(
   };
 }
 
+export async function processLogo(buffer: Buffer, mimeType: string): Promise<string> {
+  if (!mimeType.startsWith('image/')) {
+    throw new Error('File must be an image');
+  }
+
+  const uploadDir = getUploadDir();
+  const processedDir = path.join(uploadDir, 'processed');
+  await fs.mkdir(processedDir, { recursive: true });
+
+  // Keep PNG (with alpha) so transparent-background logos aren't flattened.
+  const filename = `${uuidv4()}.png`;
+  const processedPath = path.join(processedDir, filename);
+
+  await sharp(buffer)
+    .resize(400, 200, { fit: 'inside', withoutEnlargement: true })
+    .png()
+    .toFile(processedPath);
+
+  return `/uploads/processed/${filename}`;
+}
+
 export async function deleteImages(
   imageUrl: string,
   thumbnailUrl: string

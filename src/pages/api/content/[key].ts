@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { connectDB } from '../../../lib/db';
 import { SiteContent } from '../../../lib/models/SiteContent';
-import { processImage, deleteImages } from '../../../lib/imageProcessor';
+import { processImage, processLogo, deleteImages } from '../../../lib/imageProcessor';
 import { processVideo, deleteVideo } from '../../../lib/videoProcessor';
 
 // Auth is enforced by src/middleware.ts for all /api/content/** routes.
@@ -17,7 +17,7 @@ export const PUT: APIRoute = async ({ request, params }) => {
     const updates: Record<string, string> = {};
 
     for (const [field, value] of formData.entries()) {
-      const skip = ['_method', 'removeVideo', 'removeHeroImage'];
+      const skip = ['_method', 'removeVideo', 'removeHeroImage', 'removeLogo'];
       if (typeof value === 'string' && !skip.includes(field)) {
         updates[field] = value;
       }
@@ -29,6 +29,20 @@ export const PUT: APIRoute = async ({ request, params }) => {
       const buffer = Buffer.from(await portraitFile.arrayBuffer());
       const { imageUrl } = await processImage(buffer, portraitFile.type);
       updates.aboutPortraitUrl = imageUrl;
+    }
+
+    // Nav logo (remove then replace)
+    if (formData.get('removeLogo') === '1') {
+      const existing = await SiteContent.findOne({ key });
+      if (existing?.logoUrl) await deleteImages(existing.logoUrl, '');
+      updates.logoUrl = '';
+    }
+    const logoFile = formData.get('logo') as File | null;
+    if (logoFile && logoFile.size > 0) {
+      const existing = await SiteContent.findOne({ key });
+      if (existing?.logoUrl) await deleteImages(existing.logoUrl, '');
+      const buffer = Buffer.from(await logoFile.arrayBuffer());
+      updates.logoUrl = await processLogo(buffer, logoFile.type);
     }
 
     // Hero image (remove then replace)

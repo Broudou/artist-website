@@ -14,6 +14,7 @@ interface Props {
 await connectDB();
 const content = await SiteContent.findOne({ key: 'homepage' }).lean();
 const artistName = content?.artistName || 'Artist Portfolio';
+const logoUrl = content?.logoUrl || '';
 const tagline = content?.tagline || '';
 const instagramUrl = content?.instagramUrl || '';
 
@@ -41,7 +42,7 @@ const pageTitle = title === artistName ? artistName : `${title} — ${artistName
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
   <body>
-    <Nav artistName={artistName} />
+    <Nav artistName={artistName} logoUrl={logoUrl} />
 
     <!-- Cart overlay + drawer -->
     <div class="cart-overlay" id="cart-overlay"></div>
